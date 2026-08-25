@@ -16,11 +16,10 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Identifier)
-            .IsRequired()
-            .HasMaxLength(100);
+        builder.Property(x => x.ApiKey)
+            .IsRequired();
 
-        builder.HasIndex(x => x.Identifier)
+        builder.HasIndex(x => x.ApiKey)
             .IsUnique();
 
         builder.Property(x => x.Name)

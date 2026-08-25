@@ -7,8 +7,12 @@ namespace MultiTenantAJ.Domain.Multitenancy;
 public class Tenant
 {
     public string Id { get; set; } = default!;
-    public string Identifier { get; set; } = default!;
+
+    public Guid ApiKey { get; set; }
+
     public string Name { get; set; } = default!;
+
     public string ConnectionString { get; set; } = default!;
+
     public bool IsActive { get; set; }
 }
