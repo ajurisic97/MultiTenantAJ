@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MultiTenantAJ.Application.Multitenancy;
+using MultiTenantAJ.Domain.Repositories;
 using MultiTenantAJ.Infrastructure.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
 using System;
@@ -20,25 +21,22 @@ public static class DependencyInjection
         services.AddDbContext<TenantDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("Database")));
-
+        
         services.AddScoped<CurrentTenantService>();
-
         services.AddScoped<ICurrentTenantService>(provider =>
             provider.GetRequiredService<CurrentTenantService>());
+        services.AddScoped<TenantService>();
 
-        services.AddDbContext<ApplicationDbContext>((provider, options) =>
-        {
-            var currentTenant =
-                provider.GetRequiredService<ICurrentTenantService>();
 
-            if (string.IsNullOrWhiteSpace(currentTenant.ConnectionString))
-            {
-                throw new InvalidOperationException(
-                    "Tenant connection string is not available.");
-            }
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(
+                configuration.GetConnectionString("Database")));
 
-            options.UseNpgsql(currentTenant.ConnectionString);
-        });
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddScoped(
+            typeof(IRepository<>),
+            typeof(ApplicationDbRepository<>));
 
         return services;
     }
