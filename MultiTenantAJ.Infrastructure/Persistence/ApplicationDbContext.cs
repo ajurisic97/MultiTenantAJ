@@ -8,7 +8,7 @@ namespace MultiTenantAJ.Infrastructure.Persistence;
 public class ApplicationDbContext : DbContext
 {
     private readonly ICurrentTenantService _currentTenantService;
-
+    private string? CurrentTenantConnectionString => _currentTenantService.ConnectionString;
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,
         ICurrentTenantService currentTenantService)
@@ -31,6 +31,16 @@ public class ApplicationDbContext : DbContext
         ApplyTenantQueryFilters(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
+    }
+    protected override void OnConfiguring(
+    DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!string.IsNullOrWhiteSpace(CurrentTenantConnectionString))
+        {
+            optionsBuilder.UseNpgsql(CurrentTenantConnectionString);
+        }
+
+        base.OnConfiguring(optionsBuilder);
     }
 
     public override int SaveChanges()

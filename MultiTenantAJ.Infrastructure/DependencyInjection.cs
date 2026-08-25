@@ -26,19 +26,9 @@ public static class DependencyInjection
         services.AddScoped<ICurrentTenantService>(provider =>
             provider.GetRequiredService<CurrentTenantService>());
 
-        services.AddDbContext<ApplicationDbContext>((provider, options) =>
-        {
-            var currentTenant =
-                provider.GetRequiredService<ICurrentTenantService>();
-
-            if (string.IsNullOrWhiteSpace(currentTenant.ConnectionString))
-            {
-                throw new InvalidOperationException(
-                    "Tenant connection string is not available.");
-            }
-
-            options.UseNpgsql(currentTenant.ConnectionString);
-        });
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(
+                configuration.GetConnectionString("Database")));
 
         return services;
     }
