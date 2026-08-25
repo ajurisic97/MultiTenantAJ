@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MultiTenantAJ.Application.Multitenancy;
-using MultiTenantAJ.Domain.Catalog;
+using MultiTenantAJ.Domain.Models.Catalog;
 using MultiTenantAJ.Shared.Multitenancy;
 
 namespace MultiTenantAJ.Infrastructure.Persistence;

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MultiTenantAJ.Domain.Catalog;
+namespace MultiTenantAJ.Domain.Models.Catalog;
 
 public class Product : IMustHaveTenant
 {
@@ -29,9 +29,7 @@ public class Product : IMustHaveTenant
         return new Product(name, price);
     }
 
-    public void Update(
-        string name,
-        decimal price)
+    public void Update(string name,decimal price)
     {
         Name = name;
         Price = price;

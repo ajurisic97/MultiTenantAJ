@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MultiTenantAJ.Domain.Catalog;
 using MultiTenantAJ.Domain.Constants;
+using MultiTenantAJ.Domain.Models.Catalog;
 using System;
 using System.Collections.Generic;
 using System.Text;

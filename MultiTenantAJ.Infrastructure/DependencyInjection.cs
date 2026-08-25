@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MultiTenantAJ.Application.Multitenancy;
+using MultiTenantAJ.Domain.Repositories;
 using MultiTenantAJ.Infrastructure.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
 using System;
@@ -30,6 +31,12 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("Database")));
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddScoped(
+            typeof(IRepository<>),
+            typeof(ApplicationDbRepository<>));
 
         return services;
     }
