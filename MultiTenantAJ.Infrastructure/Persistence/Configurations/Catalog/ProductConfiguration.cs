@@ -25,5 +25,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(x => x.Price)
             .HasPrecision(18, 2);
+
+        builder.HasIndex(x => x.TenantId);
     }
 }

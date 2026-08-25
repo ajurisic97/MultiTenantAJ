@@ -20,11 +20,12 @@ public static class DependencyInjection
         services.AddDbContext<TenantDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("Database")));
-
+        
         services.AddScoped<CurrentTenantService>();
-
         services.AddScoped<ICurrentTenantService>(provider =>
             provider.GetRequiredService<CurrentTenantService>());
+        services.AddScoped<TenantService>();
+
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(
