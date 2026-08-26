@@ -1,13 +1,15 @@
-﻿using System;
+﻿using MultiTenantAJ.Shared.Multitenancy;
+using System;
 using System.Collections.Generic;
 using System.Security;
 using System.Text;
 
 namespace MultiTenantAJ.Domain.Models.Identity;
 
-public class Role
+public class Role : IMustHaveTenant
 {
     public Guid Id { get; private set; }
+    public string TenantId { get; set; } = default!;
 
     public string Name { get; private set; } = default!;
 

@@ -90,6 +90,8 @@ public class ApplicationDbContext : DbContext
         #region Identity
 
         ApplyTenantQueryEntityFilter<User>(modelBuilder);
+        ApplyTenantQueryEntityFilter<Role>(modelBuilder);
+
 
         #endregion
 

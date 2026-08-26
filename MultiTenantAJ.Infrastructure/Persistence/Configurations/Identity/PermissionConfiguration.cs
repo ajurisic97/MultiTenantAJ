@@ -20,8 +20,7 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Name)
-            .IsRequired()
-            .HasMaxLength(100);
+            .IsRequired();
 
         builder.HasIndex(x => x.Name)
             .IsUnique();

@@ -26,8 +26,7 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(x => x.ConnectionString)
-            .IsRequired();
+        builder.Property(x => x.ConnectionString);
 
         builder.Property(x => x.IsActive)
             .IsRequired();

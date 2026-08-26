@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using MultiTenantAJ.Infrastructure;
 using MultiTenantAJ.Application;
+using MultiTenantAJ.Infrastructure;
+using MultiTenantAJ.Infrastructure.Seeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,5 +28,11 @@ app.UseInfrastructure();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var databaseInitializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+    await databaseInitializer.InitializeAsync();
+}
 
 app.Run();

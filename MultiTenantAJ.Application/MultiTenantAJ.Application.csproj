@@ -14,4 +14,8 @@
     <ProjectReference Include="..\MultiTenantAJ.MappingContracts\MultiTenantAJ.MappingContracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Identity\" />
+  </ItemGroup>
+
 </Project>

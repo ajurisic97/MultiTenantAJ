@@ -16,12 +16,19 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.TenantId)
+            .IsRequired();
+
         builder.Property(x => x.Name)
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.HasIndex(x => x.Name)
-            .IsUnique();
+        builder.HasIndex(x => new
+        {
+            x.TenantId,
+            x.Name
+        })
+        .IsUnique();
 
         builder.HasMany(x => x.Permissions)
             .WithMany()
