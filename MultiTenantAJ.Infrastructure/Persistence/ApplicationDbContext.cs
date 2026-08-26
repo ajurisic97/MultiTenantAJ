@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MultiTenantAJ.Application.Multitenancy;
 using MultiTenantAJ.Domain.Models.Catalog;
-using MultiTenantAJ.Shared.Multitenancy;
+using MultiTenantAJ.Domain.Models.Identity;
+using MultiTenantAJ.Domain.Multitenancy;
 
 namespace MultiTenantAJ.Infrastructure.Persistence;
 
@@ -17,8 +18,22 @@ public class ApplicationDbContext : DbContext
         _currentTenantService = currentTenantService;
     }
 
+    #region Identity
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<Role> Roles => Set<Role>();
+
+    public DbSet<Permission> Permissions => Set<Permission>();
+
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    #endregion
+
+    #region Catalog
     public DbSet<Product> Products => Set<Product>();
 
+    #endregion
     public string? CurrentTenantId => _currentTenantService.TenantId;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -67,7 +82,17 @@ public class ApplicationDbContext : DbContext
     private void ApplyTenantQueryFilters(ModelBuilder modelBuilder)
     {
         #region Catalog
+
         ApplyTenantQueryEntityFilter<Product>(modelBuilder);
+
+        #endregion
+
+        #region Identity
+
+        ApplyTenantQueryEntityFilter<User>(modelBuilder);
+        ApplyTenantQueryEntityFilter<Role>(modelBuilder);
+
+
         #endregion
 
     }

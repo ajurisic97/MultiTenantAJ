@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MultiTenantAJ.Domain.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using MultiTenantAJ.Infrastructure.Seeder;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,19 +14,13 @@ public class TenantService
     private readonly TenantDbContext _tenantDbContext;
     private readonly IServiceProvider _serviceProvider;
 
-    public TenantService(
-        TenantDbContext tenantDbContext,
-        IServiceProvider serviceProvider)
+    public TenantService(TenantDbContext tenantDbContext, IServiceProvider serviceProvider)
     {
         _tenantDbContext = tenantDbContext;
         _serviceProvider = serviceProvider;
     }
 
-    public async Task<Tenant> CreateTenantAsync(
-        string id,
-        string name,
-        string connectionString,
-        CancellationToken cancellationToken = default)
+    public async Task<Tenant> CreateTenantAsync(string id,string name,string? connectionString, CancellationToken cancellationToken = default)
     {
         var tenantExists = await _tenantDbContext.Tenants
             .AnyAsync(x => x.Id == id, cancellationToken);
@@ -45,23 +40,26 @@ public class TenantService
             IsActive = true
         };
 
-        await _tenantDbContext.Tenants.AddAsync(
-            tenant,
-            cancellationToken);
+        await _tenantDbContext.Tenants.AddAsync(tenant,cancellationToken);
 
-        await _tenantDbContext.SaveChangesAsync(
-            cancellationToken);
+        await _tenantDbContext.SaveChangesAsync(cancellationToken);
 
         using var scope = _serviceProvider.CreateScope();
+
+        var currentTenantService = scope.ServiceProvider
+            .GetRequiredService<CurrentTenantService>();
+
+        currentTenantService.SetTenant(tenant);
 
         var applicationDbContext = scope.ServiceProvider
             .GetRequiredService<ApplicationDbContext>();
 
-        applicationDbContext.Database
-            .SetConnectionString(connectionString);
+        await applicationDbContext.Database.MigrateAsync(cancellationToken);
 
-        await applicationDbContext.Database
-            .MigrateAsync(cancellationToken);
+        var identitySeeder = scope.ServiceProvider
+            .GetRequiredService<IdentitySeeder>();
+
+        await identitySeeder.SeedAsync(cancellationToken);
 
         return tenant;
     }

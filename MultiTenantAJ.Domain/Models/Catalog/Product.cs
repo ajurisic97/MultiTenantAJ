@@ -1,4 +1,4 @@
-﻿using MultiTenantAJ.Shared.Multitenancy;
+﻿using MultiTenantAJ.Domain.Multitenancy;
 using System;
 using System.Collections.Generic;
 using System.Text;
