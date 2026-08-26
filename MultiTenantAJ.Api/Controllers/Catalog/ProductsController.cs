@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MultiTenantAJ.Api.Contracts.Catalog.Products;
@@ -7,11 +8,12 @@ using MultiTenantAJ.Application.Catalog.Products.Delete;
 using MultiTenantAJ.Application.Catalog.Products.GetAll;
 using MultiTenantAJ.Application.Catalog.Products.GetById;
 using MultiTenantAJ.Application.Catalog.Products.Update;
-using MultiTenantAJ.Shared.Multitenancy;
+using MultiTenantAJ.Domain.Multitenancy;
 
 namespace MultiTenantAJ.Api.Controllers.Catalog;
 
 [Route("api/[controller]")]
+[Authorize]
 [ApiController]
 public class ProductsController : ControllerBase
 {
@@ -23,9 +25,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(
-        [FromHeader(Name = MultitenancyConstants.TenantIdName)] string tenant,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var products = await _sender.Send(
             new GetProductsQuery(),

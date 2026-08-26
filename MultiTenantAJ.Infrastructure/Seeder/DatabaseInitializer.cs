@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using MultiTenantAJ.Domain.Multitenancy;
 using MultiTenantAJ.Infrastructure.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
-using MultiTenantAJ.Shared.Multitenancy;
 
 namespace MultiTenantAJ.Infrastructure.Seeder;
 

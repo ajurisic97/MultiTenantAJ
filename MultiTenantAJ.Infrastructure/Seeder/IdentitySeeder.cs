@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using MultiTenantAJ.Application.Multitenancy;
 using MultiTenantAJ.Domain.Authorization;
 using MultiTenantAJ.Domain.Models.Identity;
+using MultiTenantAJ.Domain.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
-using MultiTenantAJ.Shared.Multitenancy;
 
 namespace MultiTenantAJ.Infrastructure.Seeder;
 

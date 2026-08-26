@@ -2,7 +2,7 @@
 using MultiTenantAJ.Application.Multitenancy;
 using MultiTenantAJ.Domain.Models.Catalog;
 using MultiTenantAJ.Domain.Models.Identity;
-using MultiTenantAJ.Shared.Multitenancy;
+using MultiTenantAJ.Domain.Multitenancy;
 
 namespace MultiTenantAJ.Infrastructure.Persistence;
 

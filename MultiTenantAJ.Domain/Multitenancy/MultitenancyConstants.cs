@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MultiTenantAJ.Shared.Multitenancy;
+namespace MultiTenantAJ.Domain.Multitenancy;
 
 public static class MultitenancyConstants
 {

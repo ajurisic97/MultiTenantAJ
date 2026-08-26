@@ -3,6 +3,4 @@
   <Project Path="MultiTenantAJ.Application/MultiTenantAJ.Application.csproj" />
   <Project Path="MultiTenantAJ.Domain/MultiTenantAJ.Domain.csproj" />
   <Project Path="MultiTenantAJ.Infrastructure/MultiTenantAJ.Infrastructure.csproj" />
-  <Project Path="MultiTenantAJ.MappingContracts/MultiTenantAJ.MappingContracts.csproj" />
-  <Project Path="MultiTenantAJ.Shared/MultiTenantAJ.Shared.csproj" />
 </Solution>
