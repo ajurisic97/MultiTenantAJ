@@ -8,6 +8,7 @@ using MultiTenantAJ.Application.Identity.Roles.Delete;
 using MultiTenantAJ.Application.Identity.Roles.GetAll;
 using MultiTenantAJ.Application.Identity.Roles.GetById;
 using MultiTenantAJ.Application.Identity.Roles.Update;
+using MultiTenantAJ.Application.Identity.Roles.UpdateRolePermissions;
 using MultiTenantAJ.Domain.Authorization;
 
 namespace MultiTenantAJ.Api.Controllers.Identity;
@@ -71,6 +72,16 @@ public class RolesController : ApiControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var command = new DeleteRoleCommand(id);
+        var result = await _sender.Send(command);
+
+        return ResolveResult(result);
+    }
+
+    [MustHavePermission(ActionCatalog.Update, ResourceCatalog.RolePermissions)]
+    [HttpPut("{id}/permissions")]
+    public async Task<IActionResult> UpdatePermissions(Guid id, UpdateRolePermissionsRequest request)
+    {
+        var command = new UpdateRolePermissionsCommand(id, request.PermissionIds);
         var result = await _sender.Send(command);
 
         return ResolveResult(result);

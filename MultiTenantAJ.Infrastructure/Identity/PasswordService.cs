@@ -22,4 +22,9 @@ public class PasswordService : IPasswordService
 
         return result != PasswordVerificationResult.Failed;
     }
+
+    public string HashPassword(User user, string password)
+    {
+        return _passwordHasher.HashPassword(user, password);
+    }
 }

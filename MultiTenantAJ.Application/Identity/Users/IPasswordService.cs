@@ -8,4 +8,5 @@ namespace MultiTenantAJ.Application.Identity.Users;
 public interface IPasswordService
 {
     bool VerifyPassword(User user, string password);
+    string HashPassword(User user, string password);
 }

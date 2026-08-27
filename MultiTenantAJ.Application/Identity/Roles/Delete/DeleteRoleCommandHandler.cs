@@ -24,31 +24,14 @@ public class DeleteRoleCommandHandler
 
         if (role == null)
         {
-            return ApplicationResult<Guid>.Failure(
-                ApplicationError.NotFound("Role was not found."));
+            return ApplicationResult<Guid>.Failure(ApplicationError.NotFound("Role was not found."));
         }
 
         var hasUsers = role.Users.Count > 0;
-        var hasPermissions = role.Permissions.Count > 0;
-        if (hasUsers && hasPermissions)
-        {
-            return ApplicationResult<Guid>.Failure(
-                ApplicationError.Conflict(
-                    "Role cannot be deleted because it is assigned to users and permissions."));
-        }
 
         if (hasUsers)
         {
-            return ApplicationResult<Guid>.Failure(
-                ApplicationError.Conflict(
-                    "Role cannot be deleted because it is assigned to one or more users."));
-        }
-
-        if (hasPermissions)
-        {
-            return ApplicationResult<Guid>.Failure(
-                ApplicationError.Conflict(
-                    "Role cannot be deleted because it has assigned permissions."));
+            return ApplicationResult<Guid>.Failure(ApplicationError.Conflict( "Role cannot be deleted because it is assigned to one or more users."));
         }
 
         await _roleRepository.DeleteAsync(role,cancellationToken);

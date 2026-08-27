@@ -55,6 +55,13 @@ public class User : IMustHaveTenant
         RefreshTokenExpiryTime = expiryTime;
     }
 
+    public void ClearRefreshToken()
+    {
+        RefreshToken = null;
+        RefreshTokenExpiryTime = null;
+    }
     public const int UsernameMaxLength = 50;
     public const int PasswordHashMaxLength = 200;
+    public const int PasswordMinLength = 6;
+    public const int PasswordMaxLength = 100;
 }
