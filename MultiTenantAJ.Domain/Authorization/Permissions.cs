@@ -6,6 +6,7 @@ namespace MultiTenantAJ.Domain.Authorization;
 
 public static class Permissions
 {
+    public const string ClaimType = "permission";
     public static string NameFor(string action, string resource)
     {
         return $"Permissions.{resource}.{action}";

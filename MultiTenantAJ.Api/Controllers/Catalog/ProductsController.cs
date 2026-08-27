@@ -1,21 +1,19 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using MultiTenantAJ.Api.Authorization;
 using MultiTenantAJ.Api.Contracts.Catalog.Products;
 using MultiTenantAJ.Application.Catalog.Products.Create;
 using MultiTenantAJ.Application.Catalog.Products.Delete;
 using MultiTenantAJ.Application.Catalog.Products.GetAll;
 using MultiTenantAJ.Application.Catalog.Products.GetById;
 using MultiTenantAJ.Application.Catalog.Products.Update;
-using MultiTenantAJ.Domain.Multitenancy;
+using MultiTenantAJ.Domain.Authorization;
 
 namespace MultiTenantAJ.Api.Controllers.Catalog;
 
 [Route("api/[controller]")]
-[Authorize]
-[ApiController]
-public class ProductsController : ControllerBase
+public class ProductsController : ApiControllerBase
 {
     private readonly ISender _sender;
 
@@ -24,83 +22,55 @@ public class ProductsController : ControllerBase
         _sender = sender;
     }
 
+    [MustHavePermission(ActionCatalog.Search, ResourceCatalog.Products)]
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll()
     {
-        var products = await _sender.Send(
-            new GetProductsQuery(),
-            cancellationToken);
+        var query = new GetAllProductQuery();
+        var result = await _sender.Send(query);
 
-        return Ok(products);
+        return ResolveResult(result);
     }
 
+    [MustHavePermission(ActionCatalog.View, ResourceCatalog.Products)]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(
-        Guid id,
-        [FromHeader(Name = MultitenancyConstants.TenantIdName)] string tenant,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(Guid id)
     {
-        var product = await _sender.Send(new GetProductByIdQuery(id), cancellationToken);
-
-        if (product is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(product);
+        var query = new GetByIdProductQuery(id);
+        var result = await _sender.Send(query);
+        return ResolveResult(result);
     }
 
+    [MustHavePermission(ActionCatalog.Create, ResourceCatalog.Products)]
     [HttpPost]
-    public async Task<IActionResult> Create([FromHeader(Name = MultitenancyConstants.TenantIdName)] string tenant,
-        CreateProductRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(CreateProductRequest request)
     {
         var command = new CreateProductCommand(request.Name, request.Price);
+        var result = await _sender.Send(command);
 
-        var productId = await _sender.Send(
-            command,
-            cancellationToken);
-
-        return Ok(productId);
+        return ResolveResult(result);
     }
 
+
+    [MustHavePermission(ActionCatalog.Update, ResourceCatalog.Products)]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(
-    Guid id,
-    [FromHeader(Name = MultitenancyConstants.TenantIdName)] string tenant,
-    UpdateProductRequest request,
-    CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(Guid id, UpdateProductRequest request)
     {
-        var productId = await _sender.Send(
-            new UpdateProductCommand(
+        var command = new UpdateProductCommand(
                 id,
                 request.Name,
-                request.Price),
-            cancellationToken);
+                request.Price);
+        var result = await _sender.Send(command);
 
-        if (productId is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(productId);
+        return ResolveResult(result);
     }
 
+    [MustHavePermission(ActionCatalog.Delete, ResourceCatalog.Products)]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(
-        Guid id,
-        [FromHeader(Name = MultitenancyConstants.TenantIdName)] string tenant,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        var productId = await _sender.Send(
-            new DeleteProductCommand(id),
-            cancellationToken);
-
-        if (productId is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(productId);
+        var command = new DeleteProductCommand(id);
+        var result = await _sender.Send(command);
+        return ResolveResult(result);
     }
 }

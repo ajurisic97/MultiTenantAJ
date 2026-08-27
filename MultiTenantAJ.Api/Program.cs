@@ -1,4 +1,5 @@
 using Microsoft.OpenApi;
+using MultiTenantAJ.Api.Common;
 using MultiTenantAJ.Application;
 using MultiTenantAJ.Infrastructure;
 using MultiTenantAJ.Infrastructure.Seeder;
@@ -26,6 +27,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 
@@ -40,6 +42,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseExceptionHandler(_ => { });
 
 app.UseHttpsRedirection();
 

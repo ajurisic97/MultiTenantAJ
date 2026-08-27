@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MultiTenantAJ.Api.Authorization;
 using MultiTenantAJ.Api.Contracts.Multitenancy.Tenant;
+using MultiTenantAJ.Domain.Authorization;
 using MultiTenantAJ.Infrastructure.Multitenancy;
 
 namespace MultiTenantAJ.Api.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
-public class TenantsController : ControllerBase
+public class TenantsController : ApiControllerBase
 {
     private readonly TenantService _tenantService;
 
@@ -16,23 +17,11 @@ public class TenantsController : ControllerBase
         _tenantService = tenantService;
     }
 
+    [MustHavePermission(ActionCatalog.Create, ResourceCatalog.Tenants)]
     [HttpPost]
-    public async Task<IActionResult> CreateTenant(
-        CreateTenantRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateTenant(CreateTenantRequest request)
     {
-        var tenant = await _tenantService.CreateTenantAsync(
-            request.Id,
-            request.Name,
-            request.ConnectionString,
-            cancellationToken);
-
-        return Ok(new
-        {
-            tenant.Id,
-            tenant.Name,
-            tenant.ApiKey,
-            tenant.IsActive
-        });
+        var result = await _tenantService.CreateTenantAsync(request.Id, request.Name, request.ConnectionString);
+        return ResolveResult(result);
     }
 }

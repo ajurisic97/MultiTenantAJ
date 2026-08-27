@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MultiTenantAJ.Application.Common.Results;
 using MultiTenantAJ.Domain.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
 using MultiTenantAJ.Infrastructure.Seeder;
@@ -20,15 +21,14 @@ public class TenantService
         _serviceProvider = serviceProvider;
     }
 
-    public async Task<Tenant> CreateTenantAsync(string id,string name,string? connectionString, CancellationToken cancellationToken = default)
+    public async Task<ApplicationResult<Tenant>> CreateTenantAsync(string id,string name,string? connectionString, CancellationToken cancellationToken = default)
     {
         var tenantExists = await _tenantDbContext.Tenants
             .AnyAsync(x => x.Id == id, cancellationToken);
 
         if (tenantExists)
         {
-            throw new InvalidOperationException(
-                "Tenant already exists.");
+            return ApplicationResult<Tenant>.Failure(ApplicationError.Conflict("Tenant already exists."));
         }
 
         var tenant = new Tenant
@@ -61,6 +61,6 @@ public class TenantService
 
         await identitySeeder.SeedAsync(cancellationToken);
 
-        return tenant;
+        return ApplicationResult<Tenant>.Success(tenant);
     }
 }

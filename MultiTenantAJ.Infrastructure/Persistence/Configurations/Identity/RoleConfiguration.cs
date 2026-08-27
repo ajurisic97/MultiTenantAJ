@@ -21,7 +21,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.Property(x => x.Name)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(Role.NameMaxLength);
 
         builder.HasIndex(x => new
         {

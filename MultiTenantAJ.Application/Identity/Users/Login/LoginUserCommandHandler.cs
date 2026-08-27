@@ -1,10 +1,11 @@
 ﻿using MediatR;
+using MultiTenantAJ.Application.Common.Results;
 using MultiTenantAJ.Application.Dto.Identity;
-using MultiTenantAJ.Application.Identity.Specifications;
+using MultiTenantAJ.Application.Identity.Users.Specifications;
 using MultiTenantAJ.Domain.Models.Identity;
 using MultiTenantAJ.Domain.Repositories;
 namespace MultiTenantAJ.Application.Identity.Users.Login;
-public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, LoginUserDto>
+public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, ApplicationResult<LoginUserDto>>
 {
     private readonly IRepository<User> _userRepository;
     private readonly IPasswordService _passwordService;
@@ -18,7 +19,7 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, LoginUs
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<LoginUserDto> Handle(LoginUserCommand request, CancellationToken cancellationToken)
+    public async Task<ApplicationResult<LoginUserDto>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
     {
         var specification = new UserByUsernameSpec(request.Username);
 
@@ -26,17 +27,19 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, LoginUs
 
         if (user == null)
         {
-            throw new UnauthorizedAccessException("Invalid username or password.");
+            return ApplicationResult<LoginUserDto>.Failure(
+                ApplicationError.Unauthorized("Invalid username or password."));
         }
 
         if (!_passwordService.VerifyPassword(user, request.Password))
         {
-            throw new UnauthorizedAccessException("Invalid username or password.");
+            return ApplicationResult<LoginUserDto>.Failure(
+                ApplicationError.Unauthorized("Invalid username or password."));
         }
 
         var loginUserDto = _tokenService.GenerateToken(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return loginUserDto;
+        return ApplicationResult<LoginUserDto>.Success(loginUserDto);
     }
 }
