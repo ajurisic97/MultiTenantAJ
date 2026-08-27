@@ -8,7 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using MultiTenantAJ.Application.Identity;
 using MultiTenantAJ.Application.Identity.Users;
 using MultiTenantAJ.Application.Multitenancy;
+using MultiTenantAJ.Domain.Authorization;
 using MultiTenantAJ.Domain.Models.Identity;
+using MultiTenantAJ.Domain.Multitenancy;
 using MultiTenantAJ.Domain.Repositories;
 using MultiTenantAJ.Infrastructure.Identity;
 using MultiTenantAJ.Infrastructure.Multitenancy;
@@ -62,7 +64,22 @@ public static class DependencyInjection
                 };
             });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            foreach (var permission in Permissions.All)
+            {
+                options.AddPolicy(permission.Name, policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(Permissions.ClaimType, permission.Name);
+                    if (permission.IsRootOnly)
+                    {
+                        policy.RequireClaim(MultitenancyConstants.TenantIdName, MultitenancyConstants.RootTenantId);
+                    }
+                });
+
+            }
+        });
 
         #endregion
 

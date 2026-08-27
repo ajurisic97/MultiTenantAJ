@@ -9,26 +9,24 @@ using MultiTenantAJ.Domain.Multitenancy;
 namespace MultiTenantAJ.Api.Controllers.Identity;
 
 [Route("api/[controller]")]
-[ApiController]
-public class UserController : ControllerBase
+public class UsersController : ApiControllerBase
 {
     private readonly ISender _sender;
 
-    public UserController(ISender sender)
+    public UsersController(ISender sender)
     {
         _sender = sender;
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<ActionResult<LoginUserDto>> Login(
+    public async Task<IActionResult> Login(
         [FromHeader(Name = MultitenancyConstants.TenantIdName)] string tenant,
-        LoginUserRequest request, 
-        CancellationToken cancellationToken)
+        LoginUserRequest request)
     {
         var command = new LoginUserCommand(request.Username, request.Password);
-        var result = await _sender.Send(command, cancellationToken);
+        var result = await _sender.Send(command);
 
-        return Ok(result);
+        return ResolveResult(result);
     }
 }

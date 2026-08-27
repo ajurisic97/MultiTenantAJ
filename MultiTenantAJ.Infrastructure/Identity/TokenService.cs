@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using MultiTenantAJ.Application.Dto.Identity;
 using MultiTenantAJ.Application.Identity;
+using MultiTenantAJ.Domain.Authorization;
 using MultiTenantAJ.Domain.Models.Identity;
 using MultiTenantAJ.Domain.Multitenancy;
 using System;
@@ -38,7 +39,7 @@ public class TokenService : ITokenService
             claims.Add(new Claim(ClaimTypes.Role, role.Name));
             foreach (var permission in role.Permissions)
             {
-                claims.Add(new Claim("permission", permission.Name));
+                claims.Add(new Claim(Permissions.ClaimType, permission.Name));
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using MultiTenantAJ.Application.Catalog.Products.Specifications;
+using MultiTenantAJ.Application.Common.Results;
 using MultiTenantAJ.Domain.Models.Catalog;
 using MultiTenantAJ.Domain.Repositories;
 using System;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace MultiTenantAJ.Application.Catalog.Products.Update;
 
-public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, Guid?>
+public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ApplicationResult<Guid>>
 {
     private readonly IRepository<Product> _productRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -19,15 +20,16 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Guid?> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+    public async Task<ApplicationResult<Guid>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         var product = await _productRepository.SingleOrDefaultAsync(
             new ProductByIdSpec(request.Id),
             cancellationToken);
 
-        if (product is null)
+        if (product==null)
         {
-            return null;
+            return ApplicationResult<Guid>.Failure(
+                ApplicationError.NotFound("Product was not found."));
         }
 
         product.Update(
@@ -36,6 +38,6 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return product.Id;
+        return ApplicationResult<Guid>.Success(product.Id);
     }
 }
