@@ -10,5 +10,6 @@ public enum ApplicationErrorType
     NotFound,
     Conflict,
     Unauthorized,
-    Failure
+    Failure,
+    Forbidden
 }

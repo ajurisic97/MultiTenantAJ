@@ -44,6 +44,12 @@ public abstract class ApiControllerBase : ControllerBase
                     result.Error.Message);
                 break;
 
+            case ApplicationErrorType.Forbidden:
+                response = StatusCode(
+                    StatusCodes.Status403Forbidden,
+                    result.Error.Message);
+                break;
+
             default:
                 response = StatusCode(StatusCodes.Status500InternalServerError);
                 break;

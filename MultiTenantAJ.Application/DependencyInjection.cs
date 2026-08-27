@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using MultiTenantAJ.Application.Common.Behaviors;
 
 namespace MultiTenantAJ.Application;
 
@@ -10,10 +10,13 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(
         this IServiceCollection services)
     {
-        services.AddMediatR(configuration =>
-            configuration.RegisterServicesFromAssembly(
-                typeof(DependencyInjection).Assembly));
 
+        services.AddMediatR(configuration =>
+        {
+            configuration.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+            configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
+        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         return services;
     }
 }

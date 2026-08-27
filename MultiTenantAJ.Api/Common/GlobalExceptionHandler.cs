@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Diagnostics;
 using MultiTenantAJ.Application.Common.Results;
 
 namespace MultiTenantAJ.Api.Common;
@@ -17,6 +18,25 @@ public class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
+        if (exception is ValidationException validationException)
+        {
+            var message = string.Join(
+                " ",
+                validationException.Errors.Select(x => x.ErrorMessage));
+
+            var validationResult = ApplicationResult<object>.Failure(
+                ApplicationError.Validation(message));
+
+            httpContext.Response.StatusCode =
+                StatusCodes.Status400BadRequest;
+
+            await httpContext.Response.WriteAsJsonAsync(
+                validationResult,
+                cancellationToken);
+
+            return true;
+        }
+
         _logger.LogError(exception, "An unexpected error occurred.");
 
         var result = ApplicationResult<object>.Failure(

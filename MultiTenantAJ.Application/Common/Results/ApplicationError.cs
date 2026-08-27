@@ -39,4 +39,9 @@ public class ApplicationError
     {
         return new ApplicationError(message, ApplicationErrorType.Failure);
     }
+
+    public static ApplicationError Forbidden(string message)
+    {
+        return new ApplicationError(message, ApplicationErrorType.Forbidden);
+    }
 }

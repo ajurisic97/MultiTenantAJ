@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MultiTenantAJ.Application.Identity.Specifications;
+namespace MultiTenantAJ.Application.Identity.Users.Specifications;
 
 public class UserByUsernameSpec : Specification<User>
 {

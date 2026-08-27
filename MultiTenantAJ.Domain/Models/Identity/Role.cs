@@ -26,8 +26,8 @@ public class Role : IMustHaveTenant
     private Role(Guid id, string name, string? description)
     {
         Id = id;
-        Name = name;
-        Description = description;
+        Name = name.Trim();
+        Description = description?.Trim();
     }
 
     public static Role Create(string name, string? description)
@@ -37,7 +37,10 @@ public class Role : IMustHaveTenant
 
     public void Update(string name, string? description)
     {
-        Name = name;
-        Description = description;
+        Name = name.Trim();
+        Description = description?.Trim();
     }
+
+    public const int NameMaxLength = 50;
+
 }

@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using MultiTenantAJ.Application.Common.Results;
 using MultiTenantAJ.Application.Dto.Identity;
-using MultiTenantAJ.Application.Identity.Specifications;
+using MultiTenantAJ.Application.Identity.Users.Specifications;
 using MultiTenantAJ.Domain.Models.Identity;
 using MultiTenantAJ.Domain.Repositories;
 namespace MultiTenantAJ.Application.Identity.Users.Login;
