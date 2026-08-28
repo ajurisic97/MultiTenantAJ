@@ -16,8 +16,12 @@ public static class TableNames
     public const string RolePermissions = nameof(RolePermissions);
     #endregion
 
-    #region Catalog
-    public const string Products = nameof(Products);
+    #region PropertyManagement
+
+    public const string Properties = nameof(Properties);
+    public const string Guests = nameof(Guests);
+    public const string Reservations = nameof(Reservations);
+    public const string MaintenanceRequests = nameof(MaintenanceRequests);
 
     #endregion
 }

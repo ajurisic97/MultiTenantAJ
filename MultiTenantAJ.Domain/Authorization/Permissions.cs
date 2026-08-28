@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MultiTenantAJ.Domain.Authorization;
+﻿namespace MultiTenantAJ.Domain.Authorization;
 
 public static class Permissions
 {
@@ -14,14 +10,31 @@ public static class Permissions
 
     public static IReadOnlyCollection<PermissionDefinition> All { get; } =
         [
-            #region Catalog
+            #region PropertyManagement
             
-            new(NameFor(ActionCatalog.View, ResourceCatalog.Products)),
-            new(NameFor(ActionCatalog.Search, ResourceCatalog.Products)),
-            new(NameFor(ActionCatalog.Create, ResourceCatalog.Products)),
-            new(NameFor(ActionCatalog.Update, ResourceCatalog.Products)),
-            new(NameFor(ActionCatalog.Delete, ResourceCatalog.Products)),
+            new(NameFor(ActionCatalog.View, ResourceCatalog.Properties)),
+            new(NameFor(ActionCatalog.Search, ResourceCatalog.Properties)),
+            new(NameFor(ActionCatalog.Create, ResourceCatalog.Properties)),
+            new(NameFor(ActionCatalog.Update, ResourceCatalog.Properties)),
+            new(NameFor(ActionCatalog.Delete, ResourceCatalog.Properties)),
 
+            new(NameFor(ActionCatalog.View, ResourceCatalog.Guests)),
+            new(NameFor(ActionCatalog.Search, ResourceCatalog.Guests)),
+            new(NameFor(ActionCatalog.Create, ResourceCatalog.Guests)),
+            new(NameFor(ActionCatalog.Update, ResourceCatalog.Guests)),
+            new(NameFor(ActionCatalog.Delete, ResourceCatalog.Guests)),
+
+            new(NameFor(ActionCatalog.View, ResourceCatalog.Reservations)),
+            new(NameFor(ActionCatalog.Search, ResourceCatalog.Reservations)),
+            new(NameFor(ActionCatalog.Create, ResourceCatalog.Reservations)),
+            new(NameFor(ActionCatalog.Update, ResourceCatalog.Reservations)),
+            new(NameFor(ActionCatalog.Delete, ResourceCatalog.Reservations)),
+
+            new(NameFor(ActionCatalog.View, ResourceCatalog.MaintenanceRequests)),
+            new(NameFor(ActionCatalog.Search, ResourceCatalog.MaintenanceRequests)),
+            new(NameFor(ActionCatalog.Create, ResourceCatalog.MaintenanceRequests)),
+            new(NameFor(ActionCatalog.Update, ResourceCatalog.MaintenanceRequests)),
+            new(NameFor(ActionCatalog.Delete, ResourceCatalog.MaintenanceRequests)),
             #endregion
 
             #region Identity

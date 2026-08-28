@@ -6,8 +6,12 @@ namespace MultiTenantAJ.Domain.Authorization;
 
 public static class ResourceCatalog
 {
-    #region Catalog
-    public const string Products = nameof(Products);
+    #region PropertyManagement
+    public const string Properties = nameof(Properties);
+    public const string Guests = nameof(Guests);
+    public const string Reservations = nameof(Reservations);
+    public const string MaintenanceRequests = nameof(MaintenanceRequests);
+
     #endregion
 
     #region Identity

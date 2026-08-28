@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MultiTenantAJ.Application.Multitenancy;
-using MultiTenantAJ.Domain.Models.Catalog;
 using MultiTenantAJ.Domain.Models.Identity;
+using MultiTenantAJ.Domain.Models.PropertyManagement;
 using MultiTenantAJ.Domain.Multitenancy;
 
 namespace MultiTenantAJ.Infrastructure.Persistence;
@@ -27,8 +27,14 @@ public class ApplicationDbContext : DbContext
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     #endregion
 
-    #region Catalog
-    public DbSet<Product> Products => Set<Product>();
+    #region PropertyManagement
+    public DbSet<Property> Properties => Set<Property>();
+
+    public DbSet<Guest> Guests => Set<Guest>();
+
+    public DbSet<Reservation> Reservations => Set<Reservation>();
+
+    public DbSet<MaintenanceRequest> MaintenanceRequests => Set<MaintenanceRequest>();
 
     #endregion
     public string? CurrentTenantId => _currentTenantService.TenantId;
@@ -83,9 +89,12 @@ public class ApplicationDbContext : DbContext
 
     private void ApplyTenantQueryFilters(ModelBuilder modelBuilder)
     {
-        #region Catalog
+        #region PropertyManagement
 
-        ApplyTenantQueryEntityFilter<Product>(modelBuilder);
+        ApplyTenantQueryEntityFilter<Guest>(modelBuilder);
+        ApplyTenantQueryEntityFilter<MaintenanceRequest>(modelBuilder);
+        ApplyTenantQueryEntityFilter<Property>(modelBuilder);
+        ApplyTenantQueryEntityFilter<Reservation>(modelBuilder);
 
         #endregion
 
