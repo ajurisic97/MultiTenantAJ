@@ -2,6 +2,5 @@
 
 namespace MultiTenantAJ.Api.Contracts.PropertyManagement.MaintenanceRequests;
 
-public record UpdateMaintenanceRequestRequest(
-    string Description,
-    MaintenancePriorityEnum Priority);
+public record UpdateMaintenanceRequestStatusRequest(
+    MaintenanceRequestStatusEnum Status);

@@ -12,6 +12,7 @@ using MultiTenantAJ.Domain.Authorization;
 
 namespace MultiTenantAJ.Api.Controllers.PropertyManagement;
 
+[Tags("PropertyManagement - Guests")]
 [Route("api/[controller]")]
 public class GuestsController : ApiControllerBase
 {

@@ -11,7 +11,7 @@ using System.Text;
 
 namespace MultiTenantAJ.Application.PropertyManagement.Guests.GetAll;
 
-public class GetAllGuestQueryHandler : IRequestHandler<GetAllGuestQuery, ApplicationResult<IReadOnlyCollection<GuestDto>>>
+public class GetAllGuestQueryHandler : IRequestHandler<GetAllGuestQuery, ApplicationResult<List<GuestDto>>>
 {
     private readonly IRepository<Guest> _repository;
 
@@ -20,7 +20,7 @@ public class GetAllGuestQueryHandler : IRequestHandler<GetAllGuestQuery, Applica
         _repository = repository;
     }
 
-    public async Task<ApplicationResult<IReadOnlyCollection<GuestDto>>> Handle(GetAllGuestQuery request, CancellationToken cancellationToken)
+    public async Task<ApplicationResult<List<GuestDto>>> Handle(GetAllGuestQuery request, CancellationToken cancellationToken)
     {
         var result = await _repository.ListAsync(new SearchGuestSpec(request.FirstName, request.LastName, request.Email, request.Phone),
             cancellationToken);
@@ -29,6 +29,6 @@ public class GetAllGuestQueryHandler : IRequestHandler<GetAllGuestQuery, Applica
             .Select(GuestMappings.ToDto)
             .ToList();
 
-        return ApplicationResult<IReadOnlyCollection<GuestDto>>.Success(resultDto);
+        return ApplicationResult<List<GuestDto>>.Success(resultDto);
     }
 }

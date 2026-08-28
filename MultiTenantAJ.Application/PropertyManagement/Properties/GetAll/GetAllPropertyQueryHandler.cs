@@ -8,7 +8,7 @@ using MultiTenantAJ.Domain.Repositories;
 
 namespace MultiTenantAJ.Application.PropertyManagement.Properties.GetAll;
 
-public class GetAllPropertyQueryHandler : IRequestHandler<GetAllPropertyQuery, ApplicationResult<IReadOnlyCollection<PropertyDto>>>
+public class GetAllPropertyQueryHandler : IRequestHandler<GetAllPropertyQuery, ApplicationResult<List<PropertyDto>>>
 {
     private readonly IRepository<Property> _repository;
 
@@ -17,7 +17,7 @@ public class GetAllPropertyQueryHandler : IRequestHandler<GetAllPropertyQuery, A
         _repository = repository;
     }
 
-    public async Task<ApplicationResult<IReadOnlyCollection<PropertyDto>>> Handle(GetAllPropertyQuery request, CancellationToken cancellationToken)
+    public async Task<ApplicationResult<List<PropertyDto>>> Handle(GetAllPropertyQuery request, CancellationToken cancellationToken)
     {
         var specification = new SearchPropertySpec(
             request.Name,
@@ -30,6 +30,6 @@ public class GetAllPropertyQueryHandler : IRequestHandler<GetAllPropertyQuery, A
                 .Select(PropertyMappings.ToDto)
                 .ToList();
 
-        return ApplicationResult<IReadOnlyCollection<PropertyDto>>.Success(resultDto);
+        return ApplicationResult<List<PropertyDto>>.Success(resultDto);
     }
 }

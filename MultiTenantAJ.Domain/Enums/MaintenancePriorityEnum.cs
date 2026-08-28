@@ -5,8 +5,8 @@ using System.Text;
 namespace MultiTenantAJ.Domain.Enums;
 public enum MaintenancePriorityEnum
 {
-    Low,
-    Medium,
-    High,
-    Critical
+    Low = 0,
+    Medium = 1,
+    High = 2,
+    Critical = 3
 }

@@ -7,4 +7,4 @@ using System.Text;
 
 namespace MultiTenantAJ.Application.PropertyManagement.Guests.GetAll;
 
-public record GetAllGuestQuery(string? FirstName, string? LastName, string? Email, string? Phone) : IRequest<ApplicationResult<IReadOnlyCollection<GuestDto>>>;
+public record GetAllGuestQuery(string? FirstName, string? LastName, string? Email, string? Phone) : IRequest<ApplicationResult<List<GuestDto>>>;

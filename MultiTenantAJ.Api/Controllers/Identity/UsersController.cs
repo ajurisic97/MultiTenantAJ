@@ -19,6 +19,7 @@ using System.Security.Claims;
 
 namespace MultiTenantAJ.Api.Controllers.Identity;
 
+[Tags("Identity - Users")]
 [Route("api/[controller]")]
 public class UsersController : ApiControllerBase
 {

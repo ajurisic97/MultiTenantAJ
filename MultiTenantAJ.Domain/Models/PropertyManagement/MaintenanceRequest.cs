@@ -62,4 +62,9 @@ public class MaintenanceRequest : IMustHaveTenant
     {
         Status = MaintenanceRequestStatusEnum.Closed;
     }
+
+    public void Cancel()
+    {
+        Status = MaintenanceRequestStatusEnum.Cancelled;
+    }
 }

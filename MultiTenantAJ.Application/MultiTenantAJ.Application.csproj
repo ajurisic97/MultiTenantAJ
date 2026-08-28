@@ -16,8 +16,4 @@
     <ProjectReference Include="..\MultiTenantAJ.Domain\MultiTenantAJ.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="PropertyManagement\Guests\Specifications\" />
-  </ItemGroup>
-
 </Project>

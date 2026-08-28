@@ -6,6 +6,7 @@ using MultiTenantAJ.Domain.Authorization;
 
 namespace MultiTenantAJ.Api.Controllers.Identity;
 
+[Tags("Identity - Permissions")]
 [Route("api/[controller]")]
 public class PermissionsController : ApiControllerBase
 {

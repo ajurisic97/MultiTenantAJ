@@ -11,4 +11,4 @@ public record GetAllPropertyQuery(
     string? Name,
     string? Address,
     bool? IsActive,
-    int? MinimumCapacity) : IRequest<ApplicationResult<IReadOnlyCollection<PropertyDto>>>;
+    int? MinimumCapacity) : IRequest<ApplicationResult<List<PropertyDto>>>;

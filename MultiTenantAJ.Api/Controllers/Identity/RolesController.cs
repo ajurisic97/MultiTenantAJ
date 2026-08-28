@@ -13,6 +13,7 @@ using MultiTenantAJ.Domain.Authorization;
 
 namespace MultiTenantAJ.Api.Controllers.Identity;
 
+[Tags("Identity - Roles")]
 [Route("api/[controller]")]
 public class RolesController : ApiControllerBase
 {
