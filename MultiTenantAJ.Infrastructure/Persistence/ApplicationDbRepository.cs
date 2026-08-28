@@ -1,5 +1,6 @@
 ﻿using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MultiTenantAJ.Domain.Repositories;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,14 @@ public class ApplicationDbRepository<T> : RepositoryBase<T>,IRepository<T>
     {
         throw new NotSupportedException(
             "Use IUnitOfWork to save changes.");
+    }
+
+    public override async Task<T?> GetByIdAsync<TId>(TId id, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Set<T>()
+            .SingleOrDefaultAsync(
+                x => EF.Property<TId>(x, "Id")!.Equals(id),
+                cancellationToken);
     }
 
 }
