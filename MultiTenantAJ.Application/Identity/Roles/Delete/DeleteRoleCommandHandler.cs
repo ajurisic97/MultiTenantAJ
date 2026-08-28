@@ -20,7 +20,7 @@ public class DeleteRoleCommandHandler
 
     public async Task<ApplicationResult<Guid>> Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
     {
-        var role = await _roleRepository.SingleOrDefaultAsync( new RoleByIdSpec(request.Id,true,true), cancellationToken);
+        var role = await _roleRepository.SingleOrDefaultAsync( new RoleByIdSpec(request.Id,false,true), cancellationToken);
 
         if (role == null)
         {

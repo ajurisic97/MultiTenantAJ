@@ -38,12 +38,7 @@ public static class Permissions
             new(NameFor(ActionCatalog.Update, ResourceCatalog.Roles)),
             new(NameFor(ActionCatalog.Delete, ResourceCatalog.Roles)),
 
-            new(NameFor(ActionCatalog.View, ResourceCatalog.RolePermissions)),
-            new(NameFor(ActionCatalog.Update, ResourceCatalog.RolePermissions)),
-
-            new(NameFor(ActionCatalog.View, ResourceCatalog.UserRoles)),
-            new(NameFor(ActionCatalog.Update, ResourceCatalog.UserRoles)),
-
+            new(NameFor(ActionCatalog.Search, ResourceCatalog.Permissions)),
             #endregion
 
             #region Tenant

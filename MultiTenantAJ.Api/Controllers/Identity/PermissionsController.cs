@@ -16,7 +16,7 @@ public class PermissionsController : ApiControllerBase
         _sender = sender;
     }
 
-    [MustHavePermission(ActionCatalog.Search, ResourceCatalog.RolePermissions)]
+    [MustHavePermission(ActionCatalog.Search, ResourceCatalog.Permissions)]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {

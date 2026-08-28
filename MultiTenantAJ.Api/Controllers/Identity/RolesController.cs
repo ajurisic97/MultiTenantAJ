@@ -77,7 +77,7 @@ public class RolesController : ApiControllerBase
         return ResolveResult(result);
     }
 
-    [MustHavePermission(ActionCatalog.Update, ResourceCatalog.RolePermissions)]
+    [MustHavePermission(ActionCatalog.Update, ResourceCatalog.Roles)]
     [HttpPut("{id}/permissions")]
     public async Task<IActionResult> UpdatePermissions(Guid id, UpdateRolePermissionsRequest request)
     {
