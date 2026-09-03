@@ -74,7 +74,8 @@ public static class DependencyInjection
                     policy.RequireClaim(Permissions.ClaimType, permission.Name);
                     if (permission.IsRootOnly)
                     {
-                        policy.RequireClaim(MultitenancyConstants.TenantIdName, MultitenancyConstants.RootTenantId);
+                        policy.RequireClaim(MultitenancyConstants.TenantIdName, 
+                            MultitenancyConstants.RootTenantId);
                     }
                 });
 
@@ -96,7 +97,7 @@ public static class DependencyInjection
 
         services.AddScoped<IdentitySeeder>();
         services.AddScoped<DatabaseInitializer>();
-
+        services.AddScoped<DataSeeder>();
         #endregion
 
         return services;

@@ -6,5 +6,5 @@ public record SearchMaintenanceRequestsRequest(
     Guid? PropertyId,
     MaintenanceRequestStatusEnum? Status,
     MaintenancePriorityEnum? Priority,
-    DateTime? FromCreationDate,
-    DateTime? ToCreationDate);
+    DateTimeOffset? FromCreationDate,
+    DateTimeOffset? ToCreationDate);

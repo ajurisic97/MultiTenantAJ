@@ -17,7 +17,6 @@ public class TenantResolver
     public async Task InvokeAsync(HttpContext context, TenantDbContext tenantDbContext, CurrentTenantService currentTenantService)
     {
         Tenant? tenant;
-        //prvo provjeravam ako je autentificiran korisnik da uzmem direktno iz jwt claima vrijednost tenanta. Ako nije onda iz headera gledam
         if (context.User.Identity?.IsAuthenticated == true)
         {
             var tenantId = context.User.FindFirst(MultitenancyConstants.TenantIdName)?.Value;
@@ -26,8 +25,9 @@ public class TenantResolver
                 await WriteUnauthorizedAsync(context);
                 return;
             }
-
-            tenant = await tenantDbContext.Tenants.AsNoTracking().SingleOrDefaultAsync(x => x.Id == tenantId);
+            tenant = await tenantDbContext.Tenants
+                .AsNoTracking()
+                .SingleOrDefaultAsync(x => x.Id == tenantId);
         }
         else
         {
@@ -43,7 +43,6 @@ public class TenantResolver
                 await WriteUnauthorizedAsync(context);
                 return;
             }
-
             tenant = await tenantDbContext.Tenants.AsNoTracking().SingleOrDefaultAsync(x => x.ApiKey == apiKey);
         }
 
@@ -52,15 +51,12 @@ public class TenantResolver
             await WriteUnauthorizedAsync(context);
             return;
         }
-
         if (!tenant.IsActive)
         {
             await WriteForbiddenAsync(context);
             return;
         }
-
         currentTenantService.SetTenant(tenant);
-
         await _next(context);
     }
 

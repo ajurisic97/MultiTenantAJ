@@ -3,7 +3,6 @@ using MultiTenantAJ.Application.Multitenancy;
 using MultiTenantAJ.Domain.Models.Identity;
 using MultiTenantAJ.Domain.Models.PropertyManagement;
 using MultiTenantAJ.Domain.Multitenancy;
-
 namespace MultiTenantAJ.Infrastructure.Persistence;
 
 public class ApplicationDbContext : DbContext
@@ -67,7 +66,16 @@ public class ApplicationDbContext : DbContext
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         HandleTenantData();
+
         return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, 
+        CancellationToken cancellationToken = default)
+    {
+        HandleTenantData();
+
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -75,14 +83,8 @@ public class ApplicationDbContext : DbContext
         return SaveChangesAsync(true, cancellationToken);
     }
 
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-    {
-        HandleTenantData();
-
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-    }
-
-    private void ApplyTenantQueryEntityFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : class, IMustHaveTenant
+    private void ApplyTenantQueryEntityFilter<TEntity>(ModelBuilder modelBuilder) 
+        where TEntity : class, IMustHaveTenant
     {
         modelBuilder.Entity<TEntity>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
     }
@@ -97,16 +99,14 @@ public class ApplicationDbContext : DbContext
         ApplyTenantQueryEntityFilter<Reservation>(modelBuilder);
 
         #endregion
-
         #region Identity
 
         ApplyTenantQueryEntityFilter<User>(modelBuilder);
         ApplyTenantQueryEntityFilter<Role>(modelBuilder);
-
-
         #endregion
 
     }
+
     private void HandleTenantData()
     {
         var currentTenantId = CurrentTenantId;
@@ -124,7 +124,8 @@ public class ApplicationDbContext : DbContext
                 entry.Entity.TenantId = currentTenantId;
             }
 
-            if ((entry.State == EntityState.Modified || entry.State == EntityState.Deleted) && entry.Entity.TenantId != currentTenantId)
+            if ((entry.State == EntityState.Modified || entry.State == EntityState.Deleted) 
+                && entry.Entity.TenantId != currentTenantId)
             {
                 throw new InvalidOperationException("Cross-tenant data modification is not allowed.");
             }

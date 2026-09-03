@@ -46,8 +46,8 @@ public class MaintenanceRequestsController : ApiControllerBase
             request.PropertyId,
             request.Status,
             request.Priority,
-            request.FromCreationDate,
-            request.ToCreationDate);
+            request.FromCreationDate?.UtcDateTime,
+            request.ToCreationDate?.UtcDateTime);
 
         var result = await _sender.Send(query, cancellationToken);
 

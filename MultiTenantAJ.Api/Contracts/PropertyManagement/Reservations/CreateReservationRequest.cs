@@ -3,6 +3,6 @@
 public record CreateReservationRequest(
     Guid PropertyId,
     Guid GuestId,
-    DateTime StartDate,
-    DateTime EndDate,
+    DateTimeOffset StartDate,
+    DateTimeOffset EndDate,
     int NumberOfGuests);

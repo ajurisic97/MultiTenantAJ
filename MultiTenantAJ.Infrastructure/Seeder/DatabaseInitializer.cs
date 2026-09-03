@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiTenantAJ.Domain.Multitenancy;
@@ -11,18 +12,18 @@ public class DatabaseInitializer
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<DatabaseInitializer> _logger;
-    public DatabaseInitializer(IServiceScopeFactory scopeFactory, ILogger<DatabaseInitializer> logger)
+    private readonly IConfiguration _configuration;
+    public DatabaseInitializer(IServiceScopeFactory scopeFactory, ILogger<DatabaseInitializer> logger, IConfiguration configuration)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         await using var tenantScope = _scopeFactory.CreateAsyncScope();
-
         var tenantDbContext = tenantScope.ServiceProvider.GetRequiredService<TenantDbContext>();
-
         await tenantDbContext.Database.MigrateAsync(cancellationToken);
 
         await EnsureRootTenantAsync(tenantDbContext, cancellationToken);
@@ -32,8 +33,7 @@ public class DatabaseInitializer
             .ToListAsync(cancellationToken);
 
         var rootTenant = tenants.Single(x => x.Id == MultitenancyConstants.RootTenantId);
-
-        await InitializeTenantAsync(rootTenant, migrateDatabase: true, cancellationToken);
+        await InitializeTenantAsync(rootTenant, true, cancellationToken);
 
         var applicationTenants = tenants.Where(x => x.Id != MultitenancyConstants.RootTenantId).ToList();
 
@@ -42,8 +42,7 @@ public class DatabaseInitializer
             try
             {
                 var hasDedicatedDatabase = !string.IsNullOrWhiteSpace(tenant.ConnectionString);
-
-                await InitializeTenantAsync(tenant, migrateDatabase: hasDedicatedDatabase, cancellationToken);
+                await InitializeTenantAsync(tenant, hasDedicatedDatabase, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -69,6 +68,14 @@ public class DatabaseInitializer
         var identitySeeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
 
         await identitySeeder.SeedAsync(cancellationToken);
+        var seedDemoData = _configuration.GetValue<bool>("Seeder:SeedDemoData");
+        if (seedDemoData)
+        {
+            var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+
+            await dataSeeder.SeedAsync(cancellationToken);
+        }
+
     }
 
     private async Task EnsureRootTenantAsync(TenantDbContext tenantDbContext, CancellationToken cancellationToken)

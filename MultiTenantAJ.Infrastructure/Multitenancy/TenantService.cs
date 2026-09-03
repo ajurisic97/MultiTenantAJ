@@ -24,8 +24,8 @@ public class TenantService : ITenantService
 
     public async Task<ApplicationResult<Tenant>> CreateTenantAsync(string id, string name, string? connectionString, CancellationToken cancellationToken = default)
     {
-        var tenantExists = await _tenantDbContext.Tenants.AnyAsync(x => x.Id == id, cancellationToken);
-
+        var tenantExists = await _tenantDbContext.Tenants
+            .AnyAsync(x => x.Id == id, cancellationToken);
         if (tenantExists)
         {
             return ApplicationResult<Tenant>.Failure(ApplicationError.Conflict("Tenant already exists."));
@@ -39,9 +39,7 @@ public class TenantService : ITenantService
             ConnectionString = connectionString,
             IsActive = false
         };
-
         await _tenantDbContext.Tenants.AddAsync(tenant, cancellationToken);
-
         await _tenantDbContext.SaveChangesAsync(cancellationToken);
 
         await using var scope = _serviceProvider.CreateAsyncScope();

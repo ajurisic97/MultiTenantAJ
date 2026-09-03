@@ -11,7 +11,8 @@ using System.Text;
 
 namespace MultiTenantAJ.Application.PropertyManagement.Reservations.GetAll;
 
-public class GetAllReservationQueryHandler : IRequestHandler<GetAllReservationQuery, ApplicationResult<List<ReservationDto>>>
+public class GetAllReservationQueryHandler :
+    IRequestHandler<GetAllReservationQuery, ApplicationResult<List<ReservationDto>>>
 {
     private readonly IRepository<Reservation> _repository;
 
@@ -20,7 +21,8 @@ public class GetAllReservationQueryHandler : IRequestHandler<GetAllReservationQu
         _repository = repository;
     }
 
-    public async Task<ApplicationResult<List<ReservationDto>>> Handle(GetAllReservationQuery request, CancellationToken cancellationToken)
+    public async Task<ApplicationResult<List<ReservationDto>>> Handle(
+        GetAllReservationQuery request, CancellationToken cancellationToken)
     {
         var result = await _repository.ListAsync(new SearchReservationSpec(
             request.PropertyId,

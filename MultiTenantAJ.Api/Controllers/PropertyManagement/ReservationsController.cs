@@ -31,8 +31,8 @@ public class ReservationsController : ApiControllerBase
         var command = new CreateReservationCommand(
             request.PropertyId,
             request.GuestId,
-            request.StartDate,
-            request.EndDate,
+            request.StartDate.UtcDateTime,
+            request.EndDate.UtcDateTime,
             request.NumberOfGuests);
 
         var result = await _sender.Send(command, cancellationToken);
@@ -48,8 +48,8 @@ public class ReservationsController : ApiControllerBase
             request.PropertyId,
             request.GuestId,
             request.Status,
-            request.FromDate,
-            request.ToDate);
+            request.FromDate?.UtcDateTime,
+            request.ToDate?.UtcDateTime);
 
         var result = await _sender.Send(query, cancellationToken);
 
@@ -75,8 +75,8 @@ public class ReservationsController : ApiControllerBase
             id,
             request.PropertyId,
             request.GuestId,
-            request.StartDate,
-            request.EndDate,
+            request.StartDate.UtcDateTime,
+            request.EndDate.UtcDateTime,
             request.NumberOfGuests);
 
         var result = await _sender.Send(command, cancellationToken);

@@ -6,5 +6,5 @@ public record SearchReservationRequest(
     Guid? PropertyId,
     Guid? GuestId,
     ReservationStatusEnum? Status,
-    DateTime? FromDate,
-    DateTime? ToDate);
+    DateTimeOffset? FromDate,
+    DateTimeOffset? ToDate);
