@@ -11,4 +11,14 @@ public interface ITenantService
         string? connectionString,
         bool maintenanceEnabled,
         CancellationToken cancellationToken = default);
+
+    Task<ApplicationResult<Tenant>> UpdateTenantAsync(
+        string id,
+        bool isActive,
+        bool maintenanceEnabled,
+        CancellationToken cancellationToken = default);
+
+    Task<List<Tenant>> GetAllTenantsAsync(CancellationToken cancellationToken = default);
 }
+
+
