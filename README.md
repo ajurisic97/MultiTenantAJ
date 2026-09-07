@@ -1,116 +1,111 @@
 # MultiTenantAJ
 
-MultiTenantAJ is an ASP.NET Core Web API developed as the practical part of a master's thesis focused on the implementation of multi-tenant architecture and tenant data isolation in business applications.
+MultiTenantAJ is a multi-tenant ASP.NET Core Web API with tenant data isolation, hybrid database support, JWT authentication and permission-based authorization.
 
-The project demonstrates tenant identification, data isolation, hybrid database usage, authentication and authorization, tenant lifecycle management, and tenant-specific feature configuration.
+## Setup
 
-## Database Initialization and Seeding
+### Requirements
 
-The application automatically performs the required database initialization when it starts.
+- .NET 10 SDK
+- PostgreSQL
 
-Identity data is always initialized for each tenant and password is equal to username.
+### Database Configuration
 
-For every non-root tenant, two default users are created:
+Before running the application, configure the PostgreSQL connection string under `ConnectionStrings:Database`.
 
-- `admin` – assigned to the Admin role. 
-- `user` – assigned to the User role without permissions by default
+```json
+{
+  "ConnectionStrings": {
+    "Database": "Host=localhost;Port=5432;Database=rootTenantDb;Username=postgres;Password=your_password"
+  }
+}
+```
 
-The Admin role receives the permissions available to the tenant. Root-only permissions are excluded, and Maintenance permissions are also excluded when the tenant has `MaintenanceEnabled` set to `false`.
+Replace the connection values with those for your local PostgreSQL installation.
 
-The root tenant is initialized separately with the `SuperAdmin` role and the permissions required for system-level administration.
+The application automatically applies required database migrations and initializes tenant and identity data on startup.
 
-The application can also automatically seed demo business data for testing and demonstration purposes.
+### Demo Data
 
-Demo data seeding can be disabled through application configuration. If demo data is not required, set the demo data flag `SeedDemoData` to `false` in appsettings.json.
+Demo business data is seeded automatically by default.
 
-## Solution Architecture
+To disable demo data, set `SeedDemoData` to `false` in `appsettings.json`:
 
-The solution is divided into the following projects:
+```json
+{
+  "SeedDemoData": false
+}
+```
 
-- `MultiTenantAJ.Api` – API endpoints, middleware pipeline and HTTP contracts
-- `MultiTenantAJ.Application` – application logic, CQRS commands and queries, validation and application services
-- `MultiTenantAJ.Domain` – domain models, authorization definitions and domain rules
-- `MultiTenantAJ.Infrastructure` – Entity Framework Core, authentication, tenant resolution, database initialization and persistence
+Identity data, roles, permissions and default users are initialized regardless of this setting.
 
-## Multi-Tenancy
+## Default Users
 
-The application supports multiple tenants while using the same application codebase.
+For every non-root tenant, two users are created automatically:
 
-Tenant identification depends on the current request:
+- `admin` – assigned to the `Admin` role with all permissions available to that tenant
+- `user` – assigned to the `User` role without permissions by default
 
-- unauthenticated requests use the `tenant` HTTP header containing the tenant API key
-- authenticated requests use the tenant claim stored in the JWT
+The initial password is the same as the username:
 
-After the tenant has been resolved, its information is stored in the current tenant context and used throughout the request.
+```text
+admin / admin
+user / user
+```
 
-Tenant-owned entities contain a `TenantId`. Entity Framework Core global query filters automatically restrict queries to records belonging to the current tenant.
+The root tenant is initialized separately with:
 
-The application also validates added, modified and deleted entities before saving changes in order to prevent cross-tenant data modifications.
+```text
+superadmin / superadmin
+```
 
-## Database Models
+The `SuperAdmin` role has access to system-level tenant management permissions.
 
-The application supports a hybrid multi-tenant database model.
+If the Maintenance module is disabled for a tenant, Maintenance permissions are not available to its Admin role.
 
-Multiple tenants can share the default database while their records are isolated using `TenantId`.
+> Default credentials are intended for development and testing only.
 
-A tenant can also specify another connection string, allowing tenant data to be stored in a different database.
+## Main Features
 
-This makes it possible to demonstrate both:
+- tenant identification using API keys and JWT tenant claims
+- tenant-specific data isolation using `TenantId`
+- Entity Framework Core global query filters
+- protection against cross-tenant data modifications
+- shared database support
+- separate database support through tenant-specific connection strings
+- hybrid multi-tenant database configuration
+- automatic database migrations and tenant initialization
+- JWT authentication
+- role and permission management
+- root-only tenant administration
+- tenant activation and deactivation
+- tenant-specific feature configuration
+- Maintenance Requests module that can be enabled or disabled per tenant
+- automatic removal of Maintenance role-permission relationships when the module is disabled
+- Swagger / OpenAPI support
 
-- shared database usage with tenant-level data isolation
-- separate database usage for selected tenants
+## Tenant Identification
 
-The central tenant registry is accessed through `TenantDbContext`, while business and identity data are accessed through `ApplicationDbContext`.
+Before authentication, the tenant is identified through the `tenant` HTTP header using the tenant API key.
 
-## Authentication and Authorization
+After authentication, the tenant is determined from the tenant claim stored in the JWT.
 
-The application uses JWT authentication.
+## Tenant-Specific Maintenance Module
 
-JWT tokens contain information about:
+Each tenant has a `MaintenanceEnabled` setting.
 
-- the authenticated user
-- the current tenant
-- user roles
-- user permissions
+When the module is disabled:
 
-Authorization is based on permission policies.
-
-Individual API operations require the corresponding permission, while root-only permissions are restricted to the root tenant.
-
-The root tenant is used for system-level tenant management.
-
-## Tenant Management
-
-The root tenant can manage application tenants through the API.
-
-Supported operations include:
-
-- creating a tenant
-- retrieving tenants
-- activating or deactivating a tenant
-- enabling or disabling tenant-specific functionality
-
-When a new tenant is created, the application initializes the required database structure and identity data before activating the tenant.
-
-## Tenant-Specific Configuration
-
-The project demonstrates tenant-specific application configuration through the `MaintenanceEnabled` setting.
-
-This setting determines whether the Maintenance Requests module is available to a tenant.
-
-When Maintenance is disabled for a tenant:
-
-- Maintenance API endpoints are blocked
-- Maintenance permissions are not returned as available permissions
+- Maintenance endpoints are blocked
+- Maintenance permissions are hidden
 - Maintenance permissions cannot be assigned to roles
 - existing Maintenance role-permission relationships for that tenant are removed
 
-When Maintenance is enabled again, the permissions become available and can be assigned to roles through the existing role and permission management functionality.
+When the module is enabled again, Maintenance permissions become available and can be assigned through the existing role management functionality.
 
-Feature availability and user authorization are handled separately.
+## Solution Structure
 
-A user can access a Maintenance operation only when:
-
-1. the Maintenance module is enabled for the tenant
-2. the user has the permission required by the requested operation
-
+- `MultiTenantAJ.Api` – API controllers, HTTP contracts and middleware configuration
+- `MultiTenantAJ.Application` – CQRS commands and queries, validation and application logic
+- `MultiTenantAJ.Domain` – domain models, authorization definitions and domain rules
+- `MultiTenantAJ.Infrastructure` – Entity Framework Core, PostgreSQL persistence, authentication, tenant resolution, database initialization and seeding
