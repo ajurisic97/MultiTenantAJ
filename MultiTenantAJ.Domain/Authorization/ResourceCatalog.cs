@@ -6,15 +6,19 @@ namespace MultiTenantAJ.Domain.Authorization;
 
 public static class ResourceCatalog
 {
-    #region Catalog
-    public const string Products = nameof(Products);
+    #region PropertyManagement
+    public const string Properties = nameof(Properties);
+    public const string Guests = nameof(Guests);
+    public const string Reservations = nameof(Reservations);
+    public const string MaintenanceRequests = nameof(MaintenanceRequests);
+
     #endregion
 
     #region Identity
-    public const string Users = nameof(Users);
-    public const string Roles = nameof(Roles);
-    public const string RolePermissions = nameof(RolePermissions);
-    public const string UserRoles = nameof(UserRoles);
+    public const string Users = nameof(Users); //pripadajuce UserRoles isto spadaju tu
+    public const string Roles = nameof(Roles); //pripadajuce RolePermissions isto spadaju tu
+    public const string Permissions = nameof(Permissions);
+
 
     #endregion
 

@@ -17,6 +17,7 @@ using MultiTenantAJ.Infrastructure.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
 using MultiTenantAJ.Infrastructure.Seeder;
 using System.Text;
+namespace MultiTenantAJ.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -32,8 +33,7 @@ public static class DependencyInjection
         services.AddScoped<ICurrentTenantService>(provider =>
             provider.GetRequiredService<CurrentTenantService>());
 
-        services.AddScoped<TenantService>();
-
+        services.AddScoped<ITenantService, TenantService>();
         #endregion
 
         #region Identity
@@ -74,7 +74,8 @@ public static class DependencyInjection
                     policy.RequireClaim(Permissions.ClaimType, permission.Name);
                     if (permission.IsRootOnly)
                     {
-                        policy.RequireClaim(MultitenancyConstants.TenantIdName, MultitenancyConstants.RootTenantId);
+                        policy.RequireClaim(MultitenancyConstants.TenantIdName, 
+                            MultitenancyConstants.RootTenantId);
                     }
                 });
 
@@ -96,7 +97,7 @@ public static class DependencyInjection
 
         services.AddScoped<IdentitySeeder>();
         services.AddScoped<DatabaseInitializer>();
-
+        services.AddScoped<DataSeeder>();
         #endregion
 
         return services;

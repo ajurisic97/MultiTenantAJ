@@ -19,6 +19,7 @@ using System.Security.Claims;
 
 namespace MultiTenantAJ.Api.Controllers.Identity;
 
+[Tags("Identity - Users")]
 [Route("api/[controller]")]
 public class UsersController : ApiControllerBase
 {
@@ -124,9 +125,7 @@ public class UsersController : ApiControllerBase
         return ResolveResult(result);
     }
 
-    [MustHavePermission(
-    ActionCatalog.Update,
-    ResourceCatalog.UserRoles)]
+    [MustHavePermission(ActionCatalog.Update,ResourceCatalog.Users)]
     [HttpPut("{id}/roles")]
     public async Task<IActionResult> UpdateRoles(Guid id, UpdateUserRolesRequest request)
     {

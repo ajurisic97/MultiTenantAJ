@@ -1,4 +1,6 @@
-﻿using Ardalis.Specification.EntityFrameworkCore;
+﻿using Ardalis.Specification;
+using Ardalis.Specification.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MultiTenantAJ.Domain.Repositories;
 using System;
 using System.Collections.Generic;
@@ -18,12 +20,59 @@ public class ApplicationDbRepository<T> : RepositoryBase<T>,IRepository<T>
     public override async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         await _dbContext.Set<T>().AddAsync(entity, cancellationToken);
+
         return entity;
     }
 
-    public override Task<int> DeleteAsync(T entity, CancellationToken cancellationToken = default)
+    public override async Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
     {
-        _dbContext.Set<T>().Remove(entity);
+        var entityList = entities.ToList();
+
+        await _dbContext.Set<T>().AddRangeAsync(entityList, cancellationToken);
+
+        return entityList;
+    }
+
+    public override Task<int> UpdateAsync(T entity,CancellationToken cancellationToken = default)
+    {
+        _dbContext.Set<T>().Update(entity);
+
         return Task.FromResult(0);
     }
+
+    public override Task<int> UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
+    {
+        _dbContext.Set<T>().UpdateRange(entities);
+
+        return Task.FromResult(0);
+    }
+
+    public override Task<int> DeleteAsync( T entity, CancellationToken cancellationToken = default)
+    {
+        _dbContext.Set<T>().Remove(entity);
+
+        return Task.FromResult(0);
+    }
+
+    public override Task<int> DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
+    {
+        _dbContext.Set<T>().RemoveRange(entities);
+
+        return Task.FromResult(0);
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        throw new NotSupportedException(
+            "Use IUnitOfWork to save changes.");
+    }
+
+    public override async Task<T?> GetByIdAsync<TId>(TId id, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Set<T>()
+            .SingleOrDefaultAsync(
+                x => EF.Property<TId>(x, "Id")!.Equals(id),
+                cancellationToken);
+    }
+
 }

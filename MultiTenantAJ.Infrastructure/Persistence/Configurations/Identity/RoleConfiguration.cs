@@ -36,6 +36,16 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.HasMany(x => x.Users)
             .WithMany(x => x.Roles)
-            .UsingEntity<UserRole>();
+            .UsingEntity<UserRole>(
+                right => right
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Cascade),
+                left => left
+                    .HasOne<Role>()
+                    .WithMany()
+                    .HasForeignKey(x => x.RoleId)
+                    .OnDelete(DeleteBehavior.Restrict));
     }
 }

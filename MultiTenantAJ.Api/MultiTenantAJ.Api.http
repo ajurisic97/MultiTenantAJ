@@ -1,6 +1,0 @@
-@MultiTenantAJ.Api_HostAddress = http://localhost:5116
-
-GET {{MultiTenantAJ.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

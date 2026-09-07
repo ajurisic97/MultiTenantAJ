@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MultiTenantAJ.Domain.Multitenancy;
 using MultiTenantAJ.Infrastructure.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
@@ -9,18 +11,19 @@ namespace MultiTenantAJ.Infrastructure.Seeder;
 public class DatabaseInitializer
 {
     private readonly IServiceScopeFactory _scopeFactory;
-
-    public DatabaseInitializer(IServiceScopeFactory scopeFactory)
+    private readonly ILogger<DatabaseInitializer> _logger;
+    private readonly IConfiguration _configuration;
+    public DatabaseInitializer(IServiceScopeFactory scopeFactory, ILogger<DatabaseInitializer> logger, IConfiguration configuration)
     {
         _scopeFactory = scopeFactory;
+        _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         await using var tenantScope = _scopeFactory.CreateAsyncScope();
-
         var tenantDbContext = tenantScope.ServiceProvider.GetRequiredService<TenantDbContext>();
-
         await tenantDbContext.Database.MigrateAsync(cancellationToken);
 
         await EnsureRootTenantAsync(tenantDbContext, cancellationToken);
@@ -29,32 +32,55 @@ public class DatabaseInitializer
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        foreach (var tenant in tenants)
+        var rootTenant = tenants.Single(x => x.Id == MultitenancyConstants.RootTenantId);
+        await InitializeTenantAsync(rootTenant, true, cancellationToken);
+
+        var applicationTenants = tenants.Where(x => x.Id != MultitenancyConstants.RootTenantId).ToList();
+
+        foreach (var tenant in applicationTenants)
         {
-            await InitializeTenantAsync(tenant, cancellationToken);
+            try
+            {
+                var hasDedicatedDatabase = !string.IsNullOrWhiteSpace(tenant.ConnectionString);
+                await InitializeTenantAsync(tenant, hasDedicatedDatabase, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Database initialization failed for tenant {TenantId}.", tenant.Id);
+            }
         }
     }
 
-    private async Task InitializeTenantAsync(Tenant tenant, CancellationToken cancellationToken)
+    private async Task InitializeTenantAsync(Tenant tenant, bool migrateDatabase, CancellationToken cancellationToken)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
 
         var currentTenantService = scope.ServiceProvider.GetRequiredService<CurrentTenantService>();
+
         currentTenantService.SetTenant(tenant);
 
         var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        await applicationDbContext.Database.MigrateAsync(cancellationToken);
-
+        if (migrateDatabase)
+        {
+            await applicationDbContext.Database.MigrateAsync(cancellationToken);
+        }
         var identitySeeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
 
         await identitySeeder.SeedAsync(cancellationToken);
+        var seedDemoData = _configuration.GetValue<bool>("Seeder:SeedDemoData");
+        if (seedDemoData)
+        {
+            var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+
+            await dataSeeder.SeedAsync(cancellationToken);
+        }
+
     }
 
     private async Task EnsureRootTenantAsync(TenantDbContext tenantDbContext, CancellationToken cancellationToken)
     {
-        var rootTenantExists = await tenantDbContext.Tenants
-            .AnyAsync(x => x.Id == MultitenancyConstants.RootTenantId, cancellationToken);
+        var rootTenantExists = await tenantDbContext.Tenants.AnyAsync(x => x.Id == MultitenancyConstants.RootTenantId, cancellationToken);
 
         if (rootTenantExists)
         {

@@ -1,19 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MultiTenantAJ.Application.Multitenancy;
-using MultiTenantAJ.Domain.Models.Catalog;
 using MultiTenantAJ.Domain.Models.Identity;
+using MultiTenantAJ.Domain.Models.PropertyManagement;
 using MultiTenantAJ.Domain.Multitenancy;
-
 namespace MultiTenantAJ.Infrastructure.Persistence;
 
 public class ApplicationDbContext : DbContext
 {
     private readonly ICurrentTenantService _currentTenantService;
     private string? CurrentTenantConnectionString => _currentTenantService.ConnectionString;
-    public ApplicationDbContext(
-        DbContextOptions<ApplicationDbContext> options,
-        ICurrentTenantService currentTenantService)
-        : base(options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ICurrentTenantService currentTenantService) : base(options)
     {
         _currentTenantService = currentTenantService;
     }
@@ -30,25 +26,29 @@ public class ApplicationDbContext : DbContext
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     #endregion
 
-    #region Catalog
-    public DbSet<Product> Products => Set<Product>();
+    #region PropertyManagement
+    public DbSet<Property> Properties => Set<Property>();
+
+    public DbSet<Guest> Guests => Set<Guest>();
+
+    public DbSet<Reservation> Reservations => Set<Reservation>();
+
+    public DbSet<MaintenanceRequest> MaintenanceRequests => Set<MaintenanceRequest>();
 
     #endregion
     public string? CurrentTenantId => _currentTenantService.TenantId;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(
-            typeof(ApplicationDbContext).Assembly,
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly, 
             type => type.Namespace != null &&
-                    type.Namespace.Contains("Persistence.Configurations"));
+            type.Namespace.Contains("Persistence.Configurations"));
 
         ApplyTenantQueryFilters(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }
-    protected override void OnConfiguring(
-    DbContextOptionsBuilder optionsBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!string.IsNullOrWhiteSpace(CurrentTenantConnectionString))
         {
@@ -60,53 +60,62 @@ public class ApplicationDbContext : DbContext
 
     public override int SaveChanges()
     {
-        HandleTenantData();
-
-        return base.SaveChanges();
+        return SaveChanges(true);
     }
 
-    public override Task<int> SaveChangesAsync(
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        HandleTenantData();
+
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, 
         CancellationToken cancellationToken = default)
     {
         HandleTenantData();
 
-        return base.SaveChangesAsync(cancellationToken);
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
-    private void ApplyTenantQueryEntityFilter<TEntity>(ModelBuilder modelBuilder)
-    where TEntity : class, IMustHaveTenant
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        modelBuilder.Entity<TEntity>()
-            .HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        return SaveChangesAsync(true, cancellationToken);
     }
+
+    private void ApplyTenantQueryEntityFilter<TEntity>(ModelBuilder modelBuilder) 
+        where TEntity : class, IMustHaveTenant
+    {
+        modelBuilder.Entity<TEntity>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+    }
+
     private void ApplyTenantQueryFilters(ModelBuilder modelBuilder)
     {
-        #region Catalog
+        #region PropertyManagement
 
-        ApplyTenantQueryEntityFilter<Product>(modelBuilder);
+        ApplyTenantQueryEntityFilter<Guest>(modelBuilder);
+        ApplyTenantQueryEntityFilter<MaintenanceRequest>(modelBuilder);
+        ApplyTenantQueryEntityFilter<Property>(modelBuilder);
+        ApplyTenantQueryEntityFilter<Reservation>(modelBuilder);
 
         #endregion
-
         #region Identity
 
         ApplyTenantQueryEntityFilter<User>(modelBuilder);
         ApplyTenantQueryEntityFilter<Role>(modelBuilder);
-
-
         #endregion
 
     }
+
     private void HandleTenantData()
     {
         var currentTenantId = CurrentTenantId;
         if (string.IsNullOrWhiteSpace(currentTenantId))
         {
-            throw new InvalidOperationException(
-                "Current tenant is not available.");
+            throw new InvalidOperationException("Current tenant is not available.");
         }
 
-        var entries = ChangeTracker
-            .Entries<IMustHaveTenant>();
+        var entries = ChangeTracker.Entries<IMustHaveTenant>();
 
         foreach (var entry in entries)
         {
@@ -115,14 +124,11 @@ public class ApplicationDbContext : DbContext
                 entry.Entity.TenantId = currentTenantId;
             }
 
-            if ((entry.State == EntityState.Modified ||
-                entry.State == EntityState.Deleted) && entry.Entity.TenantId != currentTenantId)
+            if ((entry.State == EntityState.Modified || entry.State == EntityState.Deleted) 
+                && entry.Entity.TenantId != currentTenantId)
             {
-                throw new InvalidOperationException(
-                    "Cross-tenant data modification is not allowed.");
+                throw new InvalidOperationException("Cross-tenant data modification is not allowed.");
             }
         }
     }
-
-
 }

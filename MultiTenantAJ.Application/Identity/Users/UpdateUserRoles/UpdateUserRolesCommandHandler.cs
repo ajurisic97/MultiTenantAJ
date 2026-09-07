@@ -44,6 +44,11 @@ public class UpdateUserRolesCommandHandler
 
         var roles = await _roleRepository.ListAsync(new RoleByIdsSpec(requestedRoleIds), cancellationToken);
 
+        if (roles.Count != requestedRoleIds.Count)
+        {
+            return ApplicationResult<Guid>.Failure(ApplicationError.NotFound("One or more roles were not found."));
+        }
+
         var rolesToRemove = user.Roles.Where(x => !requestedRoleIds.Contains(x.Id)).ToList();
 
         foreach (var role in rolesToRemove)

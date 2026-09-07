@@ -6,6 +6,7 @@ using MultiTenantAJ.Domain.Authorization;
 
 namespace MultiTenantAJ.Api.Controllers.Identity;
 
+[Tags("Identity - Permissions")]
 [Route("api/[controller]")]
 public class PermissionsController : ApiControllerBase
 {
@@ -16,7 +17,7 @@ public class PermissionsController : ApiControllerBase
         _sender = sender;
     }
 
-    [MustHavePermission(ActionCatalog.Search, ResourceCatalog.RolePermissions)]
+    [MustHavePermission(ActionCatalog.Search, ResourceCatalog.Permissions)]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {

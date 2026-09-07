@@ -22,32 +22,6 @@ namespace MultiTenantAJ.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("MultiTenantAJ.Domain.Models.Catalog.Product", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<string>("TenantId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("Products", "Catalog");
-                });
-
             modelBuilder.Entity("MultiTenantAJ.Domain.Models.Identity.Permission", b =>
                 {
                     b.Property<int>("Id")
@@ -160,6 +134,162 @@ namespace MultiTenantAJ.Infrastructure.Persistence.Migrations
                     b.ToTable("UserRoles", "Identity");
                 });
 
+            modelBuilder.Entity("MultiTenantAJ.Domain.Models.PropertyManagement.Guest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Guests", "PropertyManagement");
+                });
+
+            modelBuilder.Entity("MultiTenantAJ.Domain.Models.PropertyManagement.MaintenanceRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("MaintenanceRequests", "PropertyManagement");
+                });
+
+            modelBuilder.Entity("MultiTenantAJ.Domain.Models.PropertyManagement.Property", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MaximumCapacity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int>("NumberOfBeds")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("NumberOfRooms")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Properties", "PropertyManagement");
+                });
+
+            modelBuilder.Entity("MultiTenantAJ.Domain.Models.PropertyManagement.Reservation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GuestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("NumberOfGuests")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuestId");
+
+                    b.HasIndex("PropertyId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Reservations", "PropertyManagement");
+                });
+
             modelBuilder.Entity("MultiTenantAJ.Domain.Models.Identity.RolePermission", b =>
                 {
                     b.HasOne("MultiTenantAJ.Domain.Models.Identity.Permission", null)
@@ -180,7 +310,7 @@ namespace MultiTenantAJ.Infrastructure.Persistence.Migrations
                     b.HasOne("MultiTenantAJ.Domain.Models.Identity.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MultiTenantAJ.Domain.Models.Identity.User", null)
@@ -190,9 +320,51 @@ namespace MultiTenantAJ.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MultiTenantAJ.Domain.Models.PropertyManagement.MaintenanceRequest", b =>
+                {
+                    b.HasOne("MultiTenantAJ.Domain.Models.PropertyManagement.Property", "Property")
+                        .WithMany("MaintenanceRequests")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+                });
+
+            modelBuilder.Entity("MultiTenantAJ.Domain.Models.PropertyManagement.Reservation", b =>
+                {
+                    b.HasOne("MultiTenantAJ.Domain.Models.PropertyManagement.Guest", "Guest")
+                        .WithMany("Reservations")
+                        .HasForeignKey("GuestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MultiTenantAJ.Domain.Models.PropertyManagement.Property", "Property")
+                        .WithMany("Reservations")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Guest");
+
+                    b.Navigation("Property");
+                });
+
             modelBuilder.Entity("MultiTenantAJ.Domain.Models.Identity.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("MultiTenantAJ.Domain.Models.PropertyManagement.Guest", b =>
+                {
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("MultiTenantAJ.Domain.Models.PropertyManagement.Property", b =>
+                {
+                    b.Navigation("MaintenanceRequests");
+
+                    b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
         }

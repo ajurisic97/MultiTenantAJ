@@ -15,7 +15,9 @@ public abstract class ApiControllerBase : ControllerBase
 
         if (result.Error == null)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            var failureResult = ApplicationResult<T>.Failure(ApplicationError.Failure("An unexpected error occurred."));
+
+            return StatusCode(StatusCodes.Status500InternalServerError,failureResult);   
         }
 
         IActionResult response;
@@ -23,35 +25,39 @@ public abstract class ApiControllerBase : ControllerBase
         switch (result.Error.Type)
         {
             case ApplicationErrorType.Validation:
-                response = BadRequest(result.Error.Message);
+                response = BadRequest(result);
                 break;
 
             case ApplicationErrorType.Unauthorized:
-                response = Unauthorized(result.Error.Message);
+                response = Unauthorized(result);
                 break;
 
             case ApplicationErrorType.NotFound:
-                response = NotFound(result.Error.Message);
+                response = NotFound(result);
                 break;
 
             case ApplicationErrorType.Conflict:
-                response = Conflict(result.Error.Message);
+                response = Conflict(result);
                 break;
 
             case ApplicationErrorType.Failure:
                 response = StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    result.Error.Message);
+                    result);
                 break;
 
             case ApplicationErrorType.Forbidden:
                 response = StatusCode(
                     StatusCodes.Status403Forbidden,
-                    result.Error.Message);
+                    result);
                 break;
 
             default:
-                response = StatusCode(StatusCodes.Status500InternalServerError);
+                response = StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    ApplicationResult<T>.Failure(
+                        ApplicationError.Failure(
+                            "An unexpected error occurred.")));
                 break;
         }
 

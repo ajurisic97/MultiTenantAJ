@@ -19,11 +19,13 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Applica
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<ApplicationResult<LoginUserDto>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
+    public async Task<ApplicationResult<LoginUserDto>> Handle(
+        LoginUserCommand request, CancellationToken cancellationToken)
     {
         var specification = new UserByUsernameSpec(request.Username);
 
-        var user = await _userRepository.FirstOrDefaultAsync(specification, cancellationToken);
+        var user = await _userRepository
+            .FirstOrDefaultAsync(specification, cancellationToken);
 
         if (user == null)
         {

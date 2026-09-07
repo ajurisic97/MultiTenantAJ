@@ -79,11 +79,36 @@ public class IdentitySeeder
             .Where(x => tenantPermissionNames.Contains(x.Name))
             .ToList();
 
-        await CreateRoleIfMissingAsync(RoleCatalog.Admin, applicationPermissions, cancellationToken);
-
+        await SeedAdminRoleAsync(applicationPermissions, cancellationToken);
         await CreateRoleIfMissingAsync(RoleCatalog.User, [], cancellationToken);
     }
+    private async Task SeedAdminRoleAsync(IReadOnlyCollection<Permission> permissions,  CancellationToken cancellationToken)
+    {
+        var role = await _dbContext.Roles.SingleOrDefaultAsync(x => x.Name == RoleCatalog.Admin, cancellationToken);
 
+        if (role == null)
+        {
+            await CreateRoleAsync(RoleCatalog.Admin, permissions, cancellationToken);
+
+            return;
+        }
+
+        var existingPermissionIds = await _dbContext.RolePermissions.Where(x => x.RoleId == role.Id).Select(x => x.PermissionId).ToListAsync(cancellationToken);
+
+        var missingRolePermissions = permissions
+            .Where(x => !existingPermissionIds.Contains(x.Id))
+            .Select(x => RolePermission.Create(role.Id, x.Id))
+            .ToList();
+
+        if (missingRolePermissions.Count == 0)
+        {
+            return;
+        }
+
+        await _dbContext.RolePermissions.AddRangeAsync(missingRolePermissions, cancellationToken);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
     private async Task SeedSuperAdminRoleAsync(IReadOnlyCollection<Permission> permissions, CancellationToken cancellationToken)
     {
         var role = await _dbContext.Roles.SingleOrDefaultAsync(x => x.Name == RoleCatalog.SuperAdmin, cancellationToken);
