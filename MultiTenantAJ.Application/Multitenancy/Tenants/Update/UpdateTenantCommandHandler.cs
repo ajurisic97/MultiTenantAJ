@@ -2,26 +2,31 @@
 using MultiTenantAJ.Application.Common.Results;
 using MultiTenantAJ.Application.Dto.Multitenancy;
 using MultiTenantAJ.Application.Mappings.Multitenancy;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace MultiTenantAJ.Application.Multitenancy.Tenants.Create;
+namespace MultiTenantAJ.Application.Multitenancy.Tenants.Update;
 
-public class CreateTenantCommandHandler  : IRequestHandler<CreateTenantCommand, ApplicationResult<TenantDto>>
+public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, ApplicationResult<TenantDto>>
 {
     private readonly ITenantService _tenantService;
 
-    public CreateTenantCommandHandler(ITenantService tenantService)
+    public UpdateTenantCommandHandler(ITenantService tenantService)
     {
         _tenantService = tenantService;
     }
 
-    public async Task<ApplicationResult<TenantDto>> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
+    public async Task<ApplicationResult<TenantDto>> Handle(
+        UpdateTenantCommand request,
+        CancellationToken cancellationToken)
     {
-        var result = await _tenantService.CreateTenantAsync(
+        var result = await _tenantService.UpdateTenantAsync(
             request.Id,
-            request.Name,
-            request.ConnectionString,
+            request.IsActive,
             request.MaintenanceEnabled,
             cancellationToken);
+
         if (!result.IsSuccess)
         {
             return ApplicationResult<TenantDto>.Failure(result.Error!);

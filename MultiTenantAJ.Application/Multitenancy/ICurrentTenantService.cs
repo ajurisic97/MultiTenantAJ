@@ -11,4 +11,5 @@ public interface ICurrentTenantService
     string? ConnectionString { get; }
 
     bool IsActive { get; }
+    bool MaintenanceEnabled { get; }
 }

@@ -15,4 +15,31 @@ public class Tenant
     public string? ConnectionString { get; set; } = default!;
 
     public bool IsActive { get; set; }
+
+    public bool MaintenanceEnabled { get; set; }
+    public static Tenant Create(string id, string name, string? connectionString, bool maintenanceEnabled)
+    {
+        return new Tenant
+        {
+            Id = id,
+            ApiKey = Guid.NewGuid(),
+            Name = name,
+            ConnectionString = connectionString,
+            IsActive = false,
+            MaintenanceEnabled = maintenanceEnabled
+        };
+    }
+    public void Update(bool maintenanceEnabled)
+    {
+        MaintenanceEnabled = maintenanceEnabled;
+    }
+    public void Activate()
+    {
+        IsActive = true;
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
 }

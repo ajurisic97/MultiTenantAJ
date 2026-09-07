@@ -30,5 +30,9 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 
         builder.Property(x => x.IsActive)
             .IsRequired();
+
+        builder.Property(x => x.MaintenanceEnabled)
+            .IsRequired()
+            .HasDefaultValue(true);
     }
 }

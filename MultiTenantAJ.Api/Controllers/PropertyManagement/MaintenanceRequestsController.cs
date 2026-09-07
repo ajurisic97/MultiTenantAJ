@@ -1,8 +1,10 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MultiTenantAJ.Api.Authorization;
 using MultiTenantAJ.Api.Contracts.PropertyManagement.MaintenanceRequests;
+using MultiTenantAJ.Application.Authorization;
 using MultiTenantAJ.Application.PropertyManagement.MaintenanceRequests.Create;
 using MultiTenantAJ.Application.PropertyManagement.MaintenanceRequests.Delete;
 using MultiTenantAJ.Application.PropertyManagement.MaintenanceRequests.GetAll;
@@ -15,6 +17,7 @@ namespace MultiTenantAJ.Api.Controllers.PropertyManagement;
 
 [Tags("PropertyManagement - MaintenanceRequests")]
 [Route("api/[controller]")]
+[Authorize(Policy = AuthorizationPolicies.MaintenanceEnabled)]
 public class MaintenanceRequestsController : ApiControllerBase
 {
     private readonly ISender _sender;

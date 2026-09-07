@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using MultiTenantAJ.Application.Authorization;
 using MultiTenantAJ.Application.Identity;
 using MultiTenantAJ.Application.Identity.Users;
 using MultiTenantAJ.Application.Multitenancy;
@@ -12,6 +14,7 @@ using MultiTenantAJ.Domain.Authorization;
 using MultiTenantAJ.Domain.Models.Identity;
 using MultiTenantAJ.Domain.Multitenancy;
 using MultiTenantAJ.Domain.Repositories;
+using MultiTenantAJ.Infrastructure.Authorization;
 using MultiTenantAJ.Infrastructure.Identity;
 using MultiTenantAJ.Infrastructure.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
@@ -80,8 +83,13 @@ public static class DependencyInjection
                 });
 
             }
+            options.AddPolicy(AuthorizationPolicies.MaintenanceEnabled, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.AddRequirements(new MaintenanceEnabledRequirement());
+            });
         });
-
+        services.AddScoped<IAuthorizationHandler, MaintenanceEnabledAuthorizationHandler>();
         #endregion
 
         #region Persistence

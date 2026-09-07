@@ -15,7 +15,8 @@ public static class TenantMappings
             Id = tenant.Id,
             Name = tenant.Name,
             ApiKey = tenant.ApiKey,
-            IsActive = tenant.IsActive
+            IsActive = tenant.IsActive,
+            MaintenanceEnabled = tenant.MaintenanceEnabled
         };
     }
 }

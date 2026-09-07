@@ -10,4 +10,5 @@ public class TenantDto
     public string Name { get; set; } = default!;
     public Guid ApiKey { get; set; }
     public bool IsActive { get; set; }
+    public bool MaintenanceEnabled { get; set; }
 }
