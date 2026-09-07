@@ -77,6 +77,7 @@ public class IdentitySeeder
 
         var applicationPermissions = permissions
             .Where(x => tenantPermissionNames.Contains(x.Name))
+            .Where(x => _currentTenantService.MaintenanceEnabled || !x.Name.StartsWith($"Permissions.{ResourceCatalog.MaintenanceRequests}."))
             .ToList();
 
         await SeedAdminRoleAsync(applicationPermissions, cancellationToken);

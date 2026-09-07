@@ -14,10 +14,13 @@ public class CurrentTenantService : ICurrentTenantService
 
     public bool IsActive { get; private set; }
 
+    public bool MaintenanceEnabled { get; private set; }
+
     internal void SetTenant(Tenant tenant)
     {
         TenantId = tenant.Id;
         ConnectionString = tenant.ConnectionString;
         IsActive = tenant.IsActive;
+        MaintenanceEnabled = tenant.MaintenanceEnabled;
     }
 }

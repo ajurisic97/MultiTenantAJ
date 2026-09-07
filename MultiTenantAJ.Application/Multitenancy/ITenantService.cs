@@ -9,5 +9,6 @@ public interface ITenantService
         string id,
         string name,
         string? connectionString,
+        bool maintenanceEnabled,
         CancellationToken cancellationToken = default);
 }

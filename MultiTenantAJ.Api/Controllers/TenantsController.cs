@@ -24,7 +24,7 @@ public class TenantsController : ApiControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateTenant(CreateTenantRequest request)
     {
-        var command = new CreateTenantCommand(request.Id, request.Name, request.ConnectionString);
+        var command = new CreateTenantCommand(request.Id, request.Name, request.ConnectionString,request.MaintenanceEnabled);
         var result = await _sender.Send(command);
         return ResolveResult(result);
     }

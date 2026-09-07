@@ -2,4 +2,5 @@
 public record CreateTenantRequest(
     string Id,
     string Name,
-    string? ConnectionString);
+    string? ConnectionString,
+    bool MaintenanceEnabled);

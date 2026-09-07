@@ -15,4 +15,6 @@ public class Tenant
     public string? ConnectionString { get; set; } = default!;
 
     public bool IsActive { get; set; }
+
+    public bool MaintenanceEnabled { get; set; }
 }

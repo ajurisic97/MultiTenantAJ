@@ -22,7 +22,7 @@ public class TenantService : ITenantService
         _serviceProvider = serviceProvider;
     }
 
-    public async Task<ApplicationResult<Tenant>> CreateTenantAsync(string id, string name, string? connectionString, CancellationToken cancellationToken = default)
+    public async Task<ApplicationResult<Tenant>> CreateTenantAsync(string id, string name, string? connectionString, bool maintenanceEnabled, CancellationToken cancellationToken = default)
     {
         var tenantExists = await _tenantDbContext.Tenants
             .AnyAsync(x => x.Id == id, cancellationToken);
@@ -37,7 +37,8 @@ public class TenantService : ITenantService
             ApiKey = Guid.NewGuid(),
             Name = name,
             ConnectionString = connectionString,
-            IsActive = false
+            IsActive = false,
+            MaintenanceEnabled = maintenanceEnabled
         };
         await _tenantDbContext.Tenants.AddAsync(tenant, cancellationToken);
         await _tenantDbContext.SaveChangesAsync(cancellationToken);

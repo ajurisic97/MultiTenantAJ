@@ -16,7 +16,12 @@ public class CreateTenantCommandHandler  : IRequestHandler<CreateTenantCommand, 
 
     public async Task<ApplicationResult<TenantDto>> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
     {
-        var result = await _tenantService.CreateTenantAsync(request.Id, request.Name, request.ConnectionString, cancellationToken);
+        var result = await _tenantService.CreateTenantAsync(
+            request.Id,
+            request.Name,
+            request.ConnectionString,
+            request.MaintenanceEnabled,
+            cancellationToken);
         if (!result.IsSuccess)
         {
             return ApplicationResult<TenantDto>.Failure(result.Error!);

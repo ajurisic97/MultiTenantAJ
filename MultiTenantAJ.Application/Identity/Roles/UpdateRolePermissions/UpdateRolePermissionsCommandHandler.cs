@@ -41,16 +41,20 @@ public class UpdateRolePermissionsCommandHandler : IRequestHandler<UpdateRolePer
 
         var requestedPermissionIds = request.PermissionIds.Distinct().ToList();
         var currentPermissionIds = role.Permissions.Select(x => x.Id).ToHashSet();
-        if (currentPermissionIds.SetEquals(requestedPermissionIds))
-        {
-            return ApplicationResult<Guid>.Success(role.Id);
-        }
 
         var permissions = await _permissionRepository.ListAsync(new PermissionByIdsSpec(requestedPermissionIds), cancellationToken);
 
         if (permissions.Count != requestedPermissionIds.Count)
         {
             return ApplicationResult<Guid>.Failure(ApplicationError.NotFound("One or more permissions were not found."));
+        }
+
+        var hasMaintenancePermissions = permissions.Any(x => x.Name.StartsWith($"Permissions.{ResourceCatalog.MaintenanceRequests}."));
+        if (!_currentTenantService.MaintenanceEnabled && hasMaintenancePermissions)
+        {
+            return ApplicationResult<Guid>.Failure(
+                ApplicationError.Forbidden(
+                    "Maintenance permissions cannot be assigned because maintenance is disabled for this tenant."));
         }
 
         var hasRootOnlyPermissions = permissions.Any(permission =>
@@ -61,6 +65,11 @@ public class UpdateRolePermissionsCommandHandler : IRequestHandler<UpdateRolePer
         if (_currentTenantService.TenantId != MultitenancyConstants.RootTenantId && hasRootOnlyPermissions)
         {
             return ApplicationResult<Guid>.Failure(ApplicationError.Forbidden("Root-only permissions cannot be assigned by this tenant."));
+        }
+
+        if (currentPermissionIds.SetEquals(requestedPermissionIds))
+        {
+            return ApplicationResult<Guid>.Success(role.Id);
         }
 
         var permissionsToRemove = role.Permissions
