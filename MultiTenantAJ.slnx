@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
   <Project Path="MultiTenantAJ.Api/MultiTenantAJ.Api.csproj" />
   <Project Path="MultiTenantAJ.Application/MultiTenantAJ.Application.csproj" />
   <Project Path="MultiTenantAJ.Domain/MultiTenantAJ.Domain.csproj" />

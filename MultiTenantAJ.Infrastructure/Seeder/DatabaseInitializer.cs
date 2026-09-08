@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MultiTenantAJ.Domain.Multitenancy;
 using MultiTenantAJ.Infrastructure.Multitenancy;
 using MultiTenantAJ.Infrastructure.Persistence;
+using Npgsql;
 
 namespace MultiTenantAJ.Infrastructure.Seeder;
 
@@ -27,13 +28,19 @@ public class DatabaseInitializer
         await tenantDbContext.Database.MigrateAsync(cancellationToken);
 
         await EnsureRootTenantAsync(tenantDbContext, cancellationToken);
+        var seedDemoData = _configuration.GetValue<bool>("Seeder:SeedDemoData");
+
+        if (seedDemoData)
+        {
+            await EnsureDemoTenantsAsync(tenantDbContext, cancellationToken);
+        }
 
         var tenants = await tenantDbContext.Tenants
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
         var rootTenant = tenants.Single(x => x.Id == MultitenancyConstants.RootTenantId);
-        await InitializeTenantAsync(rootTenant, true, cancellationToken);
+        await InitializeTenantAsync(rootTenant, true, false, cancellationToken);
 
         var applicationTenants = tenants.Where(x => x.Id != MultitenancyConstants.RootTenantId).ToList();
 
@@ -41,8 +48,8 @@ public class DatabaseInitializer
         {
             try
             {
-                var hasDedicatedDatabase = !string.IsNullOrWhiteSpace(tenant.ConnectionString);
-                await InitializeTenantAsync(tenant, hasDedicatedDatabase, cancellationToken);
+                var hasSeparatedDatabase = !string.IsNullOrWhiteSpace(tenant.ConnectionString);
+                await InitializeTenantAsync(tenant, hasSeparatedDatabase, seedDemoData, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -51,7 +58,7 @@ public class DatabaseInitializer
         }
     }
 
-    private async Task InitializeTenantAsync(Tenant tenant, bool migrateDatabase, CancellationToken cancellationToken)
+    private async Task InitializeTenantAsync(Tenant tenant, bool migrateDatabase, bool seedDemoData, CancellationToken cancellationToken)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
 
@@ -65,17 +72,29 @@ public class DatabaseInitializer
         {
             await applicationDbContext.Database.MigrateAsync(cancellationToken);
         }
+
         var identitySeeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
 
         await identitySeeder.SeedAsync(cancellationToken);
-        var seedDemoData = _configuration.GetValue<bool>("Seeder:SeedDemoData");
-        if (seedDemoData)
+
+        if (seedDemoData && IsDemoTenant(tenant.Id))
         {
             var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
-
             await dataSeeder.SeedAsync(cancellationToken);
         }
 
+    }
+
+    private static bool IsDemoTenant(string tenantId)
+    {
+        List<string> demoTenantIds =
+        [
+            MultitenancyConstants.AdriaStayTenantId,
+            MultitenancyConstants.DalmatiaRentalsTenantId,
+            MultitenancyConstants.SibenikTravelTenantId,
+            MultitenancyConstants.JadranApartmentsTenantId
+        ];
+        return demoTenantIds.Contains(tenantId);
     }
 
     private async Task EnsureRootTenantAsync(TenantDbContext tenantDbContext, CancellationToken cancellationToken)
@@ -93,10 +112,73 @@ public class DatabaseInitializer
             ApiKey = Guid.NewGuid(),
             Name = "Root",
             ConnectionString = null,
-            IsActive = true
+            IsActive = true,
+            MaintenanceEnabled = true,
         };
 
         await tenantDbContext.Tenants.AddAsync(rootTenant, cancellationToken);
+        await tenantDbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task EnsureDemoTenantsAsync(TenantDbContext tenantDbContext, CancellationToken cancellationToken)
+    {
+        var defaultConnectionString = _configuration.GetConnectionString("Database") ?? throw new InvalidOperationException("Connection string 'Database' is not configured.");
+
+        var secondaryConnectionStringBuilder = new NpgsqlConnectionStringBuilder(defaultConnectionString)
+        {
+            Database = "SecondaryTenantDb"
+        };
+
+        var secondaryTenantConnectionString = secondaryConnectionStringBuilder.ConnectionString;
+        var demoTenants = new List<Tenant>
+        {
+            new Tenant
+            {
+                Id = MultitenancyConstants.AdriaStayTenantId,
+                ApiKey = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Name = "Adria Stay",
+                ConnectionString = null,
+                IsActive = true,
+                MaintenanceEnabled = true
+            },
+            new Tenant
+            {
+                Id = MultitenancyConstants.DalmatiaRentalsTenantId,
+                ApiKey = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                Name = "Dalmatia Rentals",
+                ConnectionString = null,
+                IsActive = true,
+                MaintenanceEnabled = true
+            },
+            new Tenant
+            {
+                Id = MultitenancyConstants.SibenikTravelTenantId,
+                ApiKey = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Name = "Šibenik Travel",
+                ConnectionString = secondaryTenantConnectionString, 
+                IsActive = true,
+                MaintenanceEnabled = true
+            },
+            new Tenant
+            {
+                Id = MultitenancyConstants.JadranApartmentsTenantId,
+                ApiKey = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                Name = "Jadran Apartments",
+                ConnectionString = secondaryTenantConnectionString, 
+                IsActive = true,
+                MaintenanceEnabled = false
+            }
+        };
+
+        var existingTenantIds = await tenantDbContext.Tenants.Select(x => x.Id).ToListAsync(cancellationToken);
+        var missingTenants = demoTenants.Where(x => !existingTenantIds.Contains(x.Id)).ToList();
+
+        if (missingTenants.Count == 0)
+        {
+            return;
+        }
+
+        await tenantDbContext.Tenants.AddRangeAsync(missingTenants,cancellationToken);
         await tenantDbContext.SaveChangesAsync(cancellationToken);
     }
 }
